@@ -1,6 +1,24 @@
 #include "simulation.hpp"
 
 using namespace cgp;
+#define PI 3.1415f
+
+
+void add_waves(waves_parameters& waves, size_t N, cgp::vec2 global_dir) {
+    waves.amplitude.resize(N);
+    waves.frequency.resize(N);
+    waves.direction.resize(N);
+
+    for (int i = 0; i < N; i++) {
+        waves.frequency[i] = PI * (1 + 3*((double)rand() / (RAND_MAX)));
+        float angle = PI * (0.5f + ((double)rand() / (RAND_MAX)));
+        cgp::vec2 dir;
+        dir.x = std::cos(angle) * global_dir.x + std::sin(angle) * global_dir.y;
+        dir.y = std::cos(angle) * global_dir.y - std::sin(angle) * global_dir.x;
+        waves.direction[i] = dir;
+        waves.amplitude[i] = 10.0f * ((double)rand() / (RAND_MAX)) / (float)(N) * std::pow(std::fabs(cgp::dot(dir, global_dir)), 4.0f);
+    }
+}
 
 void compute_vertex_position(ocean_structure &ocean, cgp::grid_2D<cgp::vec3> original_position, 
                              waves_parameters waves, float t){

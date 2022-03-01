@@ -34,8 +34,10 @@ void scene_structure::display()
 // Compute a new ocean in its initial position (can be called multiple times)
 void scene_structure::initialize_ocean(int N_sample)
 {
+	add_waves(waves, 10, cgp::vec2(0.f, 1.f));
 	ocean.initialize(N_sample);
 	ocean_drawable.initialize(N_sample);
+	ocean_drawable.drawable.shading.color = cgp::vec3(0.3f, 0.3f, 1.0f);
 
 	// save the original position for wave function computation
 	original_position = ocean.position;

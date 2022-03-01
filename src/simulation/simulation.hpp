@@ -15,9 +15,11 @@ struct simulation_parameters{
 };
 
 struct waves_parameters{
-    cgp::buffer<float> amplitude = {0.5f, 0.3f}; 
-    cgp::buffer<float> frequency = {2*3.14f, 3.14f}; 
-    cgp::buffer<cgp::vec2> direction = {{1,1}, {0,1}};
+    cgp::buffer<float> amplitude;// = { 0.5f, 0.3f };
+    cgp::buffer<float> frequency;// = { 2 * 3.14f, 3.14f };
+    cgp::buffer<cgp::vec2> direction;// = { {1,1}, {0,1} };
 };
 
+
+void add_waves(waves_parameters& waves, size_t N, cgp::vec2 global_dir);
 void compute_vertex_position(ocean_structure & ocean, cgp::grid_2D<cgp::vec3> original_position, waves_parameters waves, float t);
