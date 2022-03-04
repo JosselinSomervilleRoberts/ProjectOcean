@@ -15,17 +15,17 @@ void scene_structure::display()
 
 	// Simulation of the ocean
 	// ***************************************** //
-	compute_vertex_position(ocean, original_position, waves, timer.t);
+	//compute_vertex_position(ocean, original_position, waves, timer.t);
 
 	// ocean display
 	// ***************************************** //
 	
 	// Prepare to display the updated ocean
-	ocean.update_normal();        // compute the new normals
-	ocean_drawable.update(ocean); // update the positions on the GPU
+	//ocean.update_normal();        // compute the new normals
+	//ocean_drawable.update(ocean); // update the positions on the GPU
 
 	// Display the ocean
-	draw(ocean_drawable, environment);
+	draw(ocean_drawable, environment, timer.t);
 	if(gui.display_wireframe)
 		draw_wireframe(ocean_drawable, environment);
 }

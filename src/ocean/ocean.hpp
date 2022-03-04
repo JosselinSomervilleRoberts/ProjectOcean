@@ -30,9 +30,40 @@ struct ocean_structure_drawable{
 
 
 template <typename ENVIRONMENT>
-void draw(ocean_structure_drawable const& drawable, ENVIRONMENT const& environment)
+void draw(ocean_structure_drawable const& drawable_arg, ENVIRONMENT const& environment, float t)
 {
-    draw(drawable.drawable, environment);
+    auto scene = environment;
+    auto drawable = drawable_arg.drawable;
+
+	if (drawable.number_triangles == 0) return;
+
+	// Setup shader
+	assert_cgp(drawable.shader != 0, "Try to draw mesh_drawable without shader [name:" + drawable.name + "]");
+	assert_cgp(drawable.texture != 0, "Try to draw mesh_drawable without texture [name:" + drawable.name + "]");
+	glUseProgram(drawable.shader); opengl_check;
+
+	// Send uniforms for this shader
+	opengl_uniform(drawable.shader, environment);
+	opengl_uniform(drawable.shader, drawable.shading);
+	opengl_uniform(drawable.shader, "model", drawable.model_matrix());
+
+	// Time
+	opengl_uniform(drawable.shader, "t", t);
+
+	// Set texture
+	glActiveTexture(GL_TEXTURE0); opengl_check;
+	glBindTexture(GL_TEXTURE_2D, drawable.texture); opengl_check;
+	opengl_uniform(drawable.shader, "image_texture", 0);  opengl_check;
+
+	// Call draw function
+	assert_cgp(drawable.number_triangles > 0, "Try to draw mesh_drawable with 0 triangles [name:" + drawable.name + "]"); opengl_check;
+	glBindVertexArray(drawable.vao);   opengl_check;
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, drawable.vbo.at("index")); opengl_check;
+	glDrawElements(GL_TRIANGLES, GLsizei(drawable.number_triangles * 3), GL_UNSIGNED_INT, nullptr); opengl_check;
+
+	// Clean buffers
+	glBindVertexArray(0);
+	glBindTexture(GL_TEXTURE_2D, 0);
 }
 template <typename ENVIRONMENT>
 void draw_wireframe(ocean_structure_drawable const& drawable, ENVIRONMENT const& environment)
