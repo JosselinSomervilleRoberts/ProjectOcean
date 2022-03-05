@@ -9,7 +9,8 @@
 struct gui_parameters {
 	bool display_frame     = false;
 	bool display_wireframe = false;
-	int N_sample_edge = 1000;  // number of samples of the ocean (the total number of vertices is N_sample_edge^2)
+	bool display_noise = false;
+	int N_sample_edge = 130;  // number of samples of the ocean (the total number of vertices is N_sample_edge^2)
 };
 
 
@@ -38,6 +39,7 @@ struct scene_structure {
 	ocean_structure_drawable ocean_drawable;   // Helper structure to display the ocean as a mesh
 	simulation_parameters parameters;          // Stores the parameters of the simulation (stiffness, mass, damping, time step, etc)
     waves_parameters waves;
+	perlin_noise_parameters perlin_noise;
 	// Helper variables
 	bool simulation_running = true;   // Boolean indicating if the simulation should be computed
 	GLuint ocean_texture;             // Storage of the texture ID used for the ocean

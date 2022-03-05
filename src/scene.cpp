@@ -15,7 +15,11 @@ void scene_structure::display()
 
 	// Simulation of the ocean
 	// ***************************************** //
-	//compute_vertex_position(ocean, original_position, waves, timer.t);
+	compute_vertex_position(ocean, original_position, waves, timer.t);
+	
+	if (gui.display_noise) {
+		compte_Perlin_noise(ocean, original_position, perlin_noise);
+	}
 
 	// ocean display
 	// ***************************************** //
@@ -34,13 +38,13 @@ void scene_structure::display()
 // Compute a new ocean in its initial position (can be called multiple times)
 void scene_structure::initialize_ocean(int N_sample)
 {
-	add_waves(waves, 10, cgp::vec2(0.f, 1.f));
 	ocean.initialize(N_sample);
 	ocean_drawable.initialize(N_sample);
 	ocean_drawable.drawable.shading.color = cgp::vec3(0.3f, 0.3f, 1.0f);
 
 	// save the original position for wave function computation
 	original_position = ocean.position;
+	add_waves(waves, 10, cgp::vec2(0.f, 1.f));
 
 	//ocean_drawable.drawable.texture = ocean_texture;
 }
@@ -63,6 +67,7 @@ void scene_structure::display_gui()
 
 	ImGui::Text("Display");
 	ImGui::Checkbox("Wireframe", &gui.display_wireframe);
+	ImGui::Checkbox("Perlin Noise", &gui.display_noise);
 
 	ImGui::Spacing(); ImGui::Spacing();
 
@@ -76,7 +81,10 @@ void scene_structure::display_gui()
 
 	ImGui::Spacing(); ImGui::Spacing();
 */	
-	ImGui::SliderInt("Edge Number", &gui.N_sample_edge, 50, 150);
+	ImGui::SliderInt("Edge Number", &gui.N_sample_edge, 100, 150);
+	ImGui::SliderFloat("persistency", &perlin_noise.persistency, 0.0f, 1.5f);
+	ImGui::SliderFloat("frequency_gain", &perlin_noise.frequency_gain, 0, 5.0f);
+	ImGui::SliderInt("octave", &perlin_noise.octave, 0, 10);
 
 	ImGui::Spacing(); ImGui::Spacing();
 	reset |= ImGui::Button("Restart");
@@ -84,8 +92,7 @@ void scene_structure::display_gui()
 		initialize_ocean(gui.N_sample_edge);
 		simulation_running = true;
 	}
-
-
+	
 }
 
 

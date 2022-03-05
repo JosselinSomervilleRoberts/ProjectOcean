@@ -38,8 +38,8 @@ void compute_vertex_position(ocean_structure &ocean, cgp::grid_2D<cgp::vec3> ori
             float Z = init_position[2];  // vertical direction
             
             for(int k=0; k<N_waves; k++){
-                X += a[k] * normalize(K[k]) * std::sin(w[k]*t- (K[k][0]*X_0[0]+K[k][1]*X_0[1]));
-                Z += a[k] * std::cos(w[k]*t- (K[k][0]*X_0[0]+K[k][1]*X_0[1]));
+                X += a[k] * normalize(K[k]) * std::sin(w[k]*t - (K[k][0]*X_0[0]+K[k][1]*X_0[1]));
+                Z += a[k] * std::cos(w[k]*t - (K[k][0]*X_0[0]+K[k][1]*X_0[1]));
             }
             ocean.position(i,j).x = X[0];
             ocean.position(i,j).y = X[1];
@@ -47,4 +47,16 @@ void compute_vertex_position(ocean_structure &ocean, cgp::grid_2D<cgp::vec3> ori
         }
     }
 
+}
+
+void compte_Perlin_noise(ocean_structure &ocean, cgp::grid_2D<cgp::vec3> original_position, perlin_noise_parameters const& perlin){
+    
+    int N = ocean.N_samples_edge();
+
+    for(int i=0; i<N; i++){
+        for(int j=0; j<N; j++){
+            cgp::vec2 X = {original_position(i,j).x/128.0f, original_position(i,j).y/128.0f};
+            ocean.position(i,j).z += noise_perlin(X, perlin.octave, perlin.persistency, perlin.frequency_gain);
+        }
+    }
 }
