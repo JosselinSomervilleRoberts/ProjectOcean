@@ -15,7 +15,7 @@ void scene_structure::display()
 
 	// Simulation of the ocean
 	// ***************************************** //
-	compute_vertex_position(ocean, original_position, waves, timer.t);
+	//compute_vertex_position(ocean, original_position, waves, timer.t);
 	
 	if (gui.display_noise) {
 		compte_Perlin_noise(ocean, original_position, perlin_noise);
