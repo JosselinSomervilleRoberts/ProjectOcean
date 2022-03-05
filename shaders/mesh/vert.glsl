@@ -36,6 +36,13 @@ uniform float t;
 float PI = 3.1415f;
 float screenWidth = 10.0f;
 
+struct PerlinNoise {
+	float amplitude;
+	float dilatation;
+	float persistance;
+	float frequency;
+};
+
 float rand(vec2 c){
 	return fract(sin(dot(c.xy ,vec2(12.9898,78.233))) * 43758.5453);
 }
@@ -95,29 +102,29 @@ vec3 compute_wave_pos(vec3 pos)
         X += a * normalize(dir) * sin(arg);
         Z += a * cos(arg);
     }
-	Z+= pNoise(vec2(position), 1);
+	Z += 2.0f* pNoise(vec2(pos), 1);
 
     return vec3(X[0], X[1], Z);
 }
 
-vec3 du(float u, float v) {
-    float EPSILON = 0.001f;
-    vec3 v1 = compute_wave_pos(vec3(u + EPSILON, v, 0));
-    vec3 v2 = compute_wave_pos(vec3(u - EPSILON, v, 0));
-    return (v2 - v1) / (2.0f * EPSILON);
+vec3 du(float u, float v, float z) {
+    float EPSILON = 0.01f;
+    vec3 v1 = compute_wave_pos(vec3(u + EPSILON, v, z));
+    vec3 v2 = compute_wave_pos(vec3(u - EPSILON, v, z));
+    return (v1 - v2) / (2.0f * EPSILON);
 }
 
-vec3 dv(float u, float v) {
-    float EPSILON = 0.001f;
-    vec3 v1 = compute_wave_pos(vec3(u, v + EPSILON, 0));
-    vec3 v2 = compute_wave_pos(vec3(u, v - EPSILON, 0));
-    return (v2 - v1) / (2.0f * EPSILON);
+vec3 dv(float u, float v, float z) {
+    float EPSILON = 0.01f;
+    vec3 v1 = compute_wave_pos(vec3(u, v + EPSILON, z));
+    vec3 v2 = compute_wave_pos(vec3(u, v - EPSILON, z));
+    return (v1 - v2) / (2.0f * EPSILON);
 }
 
 vec3 compute_wave_norm(vec3 pos)
 {
-    vec3 grad_u = du(pos.x, pos.y);
-    vec3 grad_v = dv(pos.x, pos.y);
+    vec3 grad_u = du(pos.x, pos.y, pos.z);
+    vec3 grad_v = dv(pos.x, pos.y, pos.z);
 
     return normalize(cross(grad_u, grad_v));
 }
