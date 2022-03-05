@@ -21,9 +21,9 @@ struct waves_parameters{
 };
 
 struct perlin_noise_parameters{
-	float persistency = 0.0f;
-	float frequency_gain = 2.0f;
-	int octave = 6;
+	float persistency = 0.7f;
+	float frequency_gain = 3.0f;
+	int octave = 7;
 	float height = 0;
 };
 

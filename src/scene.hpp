@@ -10,7 +10,7 @@ struct gui_parameters {
 	bool display_frame     = false;
 	bool display_wireframe = false;
 	bool display_noise = false;
-	int N_sample_edge = 100;  // number of samples of the ocean (the total number of vertices is N_sample_edge^2)
+	int N_sample_edge = 130;  // number of samples of the ocean (the total number of vertices is N_sample_edge^2)
 };
 
 

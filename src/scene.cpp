@@ -81,8 +81,8 @@ void scene_structure::display_gui()
 
 	ImGui::Spacing(); ImGui::Spacing();
 */	
-	ImGui::SliderInt("Edge Number", &gui.N_sample_edge, 50, 150);
-	ImGui::SliderFloat("persistency", &perlin_noise.persistency, 0.0f, 1.0f);
+	ImGui::SliderInt("Edge Number", &gui.N_sample_edge, 100, 150);
+	ImGui::SliderFloat("persistency", &perlin_noise.persistency, 0.0f, 1.5f);
 	ImGui::SliderFloat("frequency_gain", &perlin_noise.frequency_gain, 0, 5.0f);
 	ImGui::SliderInt("octave", &perlin_noise.octave, 0, 10);
 
