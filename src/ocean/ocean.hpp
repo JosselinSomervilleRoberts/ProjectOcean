@@ -4,10 +4,10 @@
 #include "simulation/simulation.hpp"
 
 
-struct waves_parameters {
-	cgp::buffer<float> amplitude; // = { 0.5f, 0.3f };
-	cgp::buffer<float> frequency; // = { 2 * 3.14f, 3.14f };
-	cgp::buffer<cgp::vec2> direction; // = { {1,1}, {0,1} };
+struct wave_parameters {
+	float amplitude; // = { 0.5f, 0.3f };
+	float frequency; // = { 2 * 3.14f, 3.14f };
+	cgp::vec2 direction; // = { {1,1}, {0,1} };
 };
 
 
@@ -24,6 +24,7 @@ struct wind_parameters {
 };
 
 
+
 class Ocean {
 public:
 
@@ -35,9 +36,12 @@ public:
 
 	void add_random_waves(size_t N, cgp::vec2 global_dir);
 
+	// GPU functions
+	void send_waves_to_GPU();
+
 
 	// To generate
-	waves_parameters waves;
+	std::vector<wave_parameters> waves;
 	perlin_noise_parameters perlin;
 	wind_parameters wind;
 

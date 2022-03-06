@@ -58,8 +58,9 @@ void Ocean::draw(cgp::scene_environment_basic const& environment, float t)
 	opengl_uniform(drawable.shader, drawable.shading);
 	opengl_uniform(drawable.shader, "model", drawable.model_matrix());
 
-	// Time
+	// Data
 	opengl_uniform(drawable.shader, "t", t);
+    send_waves_to_GPU();
 
 	// Set texture
 	glActiveTexture(GL_TEXTURE0); opengl_check;
@@ -82,17 +83,37 @@ void Ocean::draw(cgp::scene_environment_basic const& environment, float t)
 
 
 void Ocean::add_random_waves(size_t N, cgp::vec2 global_dir) {
-    waves.amplitude.resize(N);
-    waves.frequency.resize(N);
-    waves.direction.resize(N);
+    waves.resize(N);
 
+    
+   
     for (int i = 0; i < N; i++) {
-        waves.frequency[i] = PI * (1 + 3 * ((double)rand() / (RAND_MAX)));
+        waves[i].frequency = PI * (1 + 3 * ((double)rand() / (RAND_MAX)));
         float angle = PI * (0.5f + ((double)rand() / (RAND_MAX)));
         cgp::vec2 dir;
         dir.x = std::cos(angle) * global_dir.x + std::sin(angle) * global_dir.y;
         dir.y = std::cos(angle) * global_dir.y - std::sin(angle) * global_dir.x;
-        waves.direction[i] = dir;
-        waves.amplitude[i] = 10.0f * ((double)rand() / (RAND_MAX)) / (float)(N)*std::pow(std::fabs(cgp::dot(dir, global_dir)), 4.0f);
+        waves[i].direction = dir;
+        waves[i].amplitude = 3.0f * ((double)rand() / (RAND_MAX)) / (float)(std::sqrt(N))*std::pow(std::fabs(cgp::dot(dir, global_dir)), 4.0f);
+    }
+}
+
+void opengl_uniform(GLuint shader, std::string name, vec2 const& value)
+{
+    assert_cgp(shader != 0, "Try to send uniform " + name + " to unspecified shader");
+    GLint const location = glGetUniformLocation(shader, name.c_str()); opengl_check;
+    glUniform2f(location, value.x, value.y); opengl_check;
+}
+
+
+void Ocean::send_waves_to_GPU() {
+    int N_waves = waves.size();
+    opengl_uniform(drawable.shader, "N_waves", N_waves);
+    
+    for (int i = 0; i < N_waves; i++) {
+        opengl_uniform(drawable.shader, "waves[" + str(i) + "].amplitude", waves[i].amplitude);
+        opengl_uniform(drawable.shader, "waves[" + str(i) + "].frequency", waves[i].frequency);
+        opengl_uniform(drawable.shader, std::string("waves[" + str(i) + "].direction"), waves[i].direction);
+        //opengl_uniform(drawable.shader, "waves[" + str(i) + "].directionY", waves[i].direction.y);
     }
 }
