@@ -1,6 +1,57 @@
 #pragma once
 
 #include "cgp/cgp.hpp"
+#include "simulation/simulation.hpp"
+
+
+struct waves_parameters {
+	cgp::buffer<float> amplitude; // = { 0.5f, 0.3f };
+	cgp::buffer<float> frequency; // = { 2 * 3.14f, 3.14f };
+	cgp::buffer<cgp::vec2> direction; // = { {1,1}, {0,1} };
+};
+
+
+struct perlin_noise_parameters {
+	float persistency = 0.7f;
+	float frequency_gain = 3.0f;
+	int octave = 7;
+	float height = 0;
+};
+
+struct wind_parameters {
+	float magnitude = 0.0f;
+	cgp::vec3 direction = { 0,-1,0 };
+};
+
+
+class Ocean {
+public:
+
+	Ocean();
+	void initialize(int N_samples_edge);
+	void draw(cgp::scene_environment_basic const& environment, float t);
+	void update_normal();
+	void update();
+
+	void add_random_waves(size_t N, cgp::vec2 global_dir);
+
+
+	// To generate
+	waves_parameters waves;
+	perlin_noise_parameters perlin;
+	wind_parameters wind;
+
+	// Geometry
+	cgp::grid_2D<cgp::vec3> position;
+	cgp::grid_2D<cgp::vec3> normal; // Normally not used
+	cgp::buffer<cgp::uint3> triangle_connectivity;
+
+	// Drawable
+	cgp::mesh_drawable drawable;
+	bool show_wireframe = false;
+};
+
+/*
 
 // Stores the buffers representing the ocean vertices
 struct ocean_structure
@@ -30,7 +81,7 @@ struct ocean_structure_drawable{
 
 
 template <typename ENVIRONMENT>
-void draw(ocean_structure_drawable const& drawable_arg, ENVIRONMENT const& environment, float t)
+void draw(ocean_structure_drawable const& drawable_arg, ENVIRONMENT const& environment, float t, waves_parameters waves)
 {
     auto scene = environment;
     auto drawable = drawable_arg.drawable;
@@ -69,4 +120,4 @@ template <typename ENVIRONMENT>
 void draw_wireframe(ocean_structure_drawable const& drawable, ENVIRONMENT const& environment)
 {
     draw_wireframe(drawable.drawable, environment);
-}
+}*/

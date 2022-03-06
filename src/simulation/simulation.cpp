@@ -1,5 +1,6 @@
 #include "simulation.hpp"
 
+/*
 using namespace cgp;
 #define PI 3.1415f
 
@@ -60,3 +61,4 @@ void compte_Perlin_noise(ocean_structure &ocean, cgp::grid_2D<cgp::vec3> origina
         }
     }
 }
+*/

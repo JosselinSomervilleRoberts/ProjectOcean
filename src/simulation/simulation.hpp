@@ -1,5 +1,6 @@
 #pragma once
 
+/*
 #include "cgp/cgp.hpp"
 #include "../ocean/ocean.hpp"
 
@@ -30,3 +31,4 @@ struct perlin_noise_parameters{
 void add_waves(waves_parameters& waves, size_t N, cgp::vec2 global_dir);
 void compute_vertex_position(ocean_structure & ocean, cgp::grid_2D<cgp::vec3> original_position, waves_parameters waves, float t);
 void compte_Perlin_noise(ocean_structure &ocean, cgp::grid_2D<cgp::vec3> original_position, perlin_noise_parameters const& perlin);
+*/

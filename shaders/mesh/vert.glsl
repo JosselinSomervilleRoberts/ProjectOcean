@@ -63,11 +63,11 @@ float noise(vec2 p, float freq ){
 }
 
 float pNoise(vec2 p, int res){
-	float persistance = .5;
+	float persistance = .25;
 	float n = 0.;
 	float normK = 0.;
-	float f = 4.;
-	float amp = 1.;
+	float f = 3.;
+	float amp = 5.0f;
 	int iCount = 0;
 	for (int i = 0; i<50; i++){
 		n+=amp*noise(p, f);
@@ -102,7 +102,7 @@ vec3 compute_wave_pos(vec3 pos)
         X += a * normalize(dir) * sin(arg);
         Z += a * cos(arg);
     }
-	Z += 2.0f* pNoise(vec2(pos), 1);
+	Z += pNoise(X, 2);
 
     return vec3(X[0], X[1], Z);
 }

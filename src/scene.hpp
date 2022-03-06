@@ -1,9 +1,8 @@
 #pragma once
 
 #include "cgp/cgp.hpp"
-
 #include "ocean/ocean.hpp"
-#include "simulation/simulation.hpp"
+
 
 // The element of the GUI that are not already stored in other structures
 struct gui_parameters {
@@ -35,11 +34,7 @@ struct scene_structure {
 	cgp::grid_2D<cgp::vec3> original_position; // Extra storage of the original position of the mesh
 
 
-	ocean_structure ocean;                     // The values of the position, velocity, forces, etc, stored as a 2D grid
-	ocean_structure_drawable ocean_drawable;   // Helper structure to display the ocean as a mesh
-	simulation_parameters parameters;          // Stores the parameters of the simulation (stiffness, mass, damping, time step, etc)
-    waves_parameters waves;
-	perlin_noise_parameters perlin_noise;
+	Ocean ocean;                     // The values of the position, velocity, forces, etc, stored as a 2D grid
 	// Helper variables
 	bool simulation_running = true;   // Boolean indicating if the simulation should be computed
 	GLuint ocean_texture;             // Storage of the texture ID used for the ocean
