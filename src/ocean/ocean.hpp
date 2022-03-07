@@ -1,7 +1,6 @@
 #pragma once
 
 #include "cgp/cgp.hpp"
-#include "simulation/simulation.hpp"
 
 
 struct wave_parameters {
