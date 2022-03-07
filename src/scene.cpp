@@ -63,26 +63,25 @@ void scene_structure::display_gui()
 {
 	bool reset = false;
 
-	ImGui::Text("Display");
+	ImGui::Text("MESH SETTINGS");
+	ImGui::SliderInt("Edge Number", &gui.N_sample_edge, 100, 1000);
 	ImGui::Checkbox("Wireframe", &ocean.show_wireframe);
-	ImGui::Checkbox("Perlin Noise", &gui.display_noise);
 
-	ImGui::Spacing(); ImGui::Spacing();
+	ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing();
+	ImGui::Text("WAVES SETTINGS");
 
-/*
-	ImGui::Text("Simulation parameters");
-	ImGui::SliderFloat("Time step", &parameters.dt, 0.01f, 0.02f);
-	ImGui::SliderFloat("Stiffness", &parameters.K, 1.0f, 80.0f, "%.3f", 2.0f);
-	ImGui::SliderFloat("Wind magnitude", &parameters.wind.magnitude, 0, 60, "%.3f", 2.0f);
-	ImGui::SliderFloat("Damping", &parameters.mu, 1.0f, 100.0f);
-	ImGui::SliderFloat("Mass", &parameters.mass_total, 0.2f, 5.0f, "%.3f", 2.0f);
+	
 
-	ImGui::Spacing(); ImGui::Spacing();
-*/	
-	ImGui::SliderInt("Edge Number", &gui.N_sample_edge, 100, 150);
-	ImGui::SliderFloat("persistency", &ocean.perlin.persistency, 0.0f, 1.5f);
-	ImGui::SliderFloat("frequency_gain", &ocean.perlin.frequency_gain, 0, 5.0f);
-	ImGui::SliderInt("octave", &ocean.perlin.octave, 0, 10);
+	ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing();
+	ImGui::Text("PERLIN NOISE");
+	ImGui::Checkbox("Active", &ocean.perlin.used);
+	ImGui::SliderFloat("Amplitude", &ocean.perlin.amplitude, 0.0f, 5.0f);
+	ImGui::SliderFloat("Persistency", &ocean.perlin.persistency, 0.0f, 1.5f);
+	ImGui::SliderFloat("Frequency", &ocean.perlin.frequency, 0.1f, 5.0f);
+	ImGui::SliderFloat("Frequency Gain", &ocean.perlin.frequency_gain, 0, 5.0f);
+	ImGui::SliderInt("Octave", &ocean.perlin.octave, 0, 10);
+	ImGui::SliderFloat("Dilatation Space", &ocean.perlin.dilatation_space, 0.01f, 0.2f);
+	ImGui::SliderFloat("Dilatation Time", &ocean.perlin.dilatation_time, 0.1f, 2.0f);
 
 	ImGui::Spacing(); ImGui::Spacing();
 	reset |= ImGui::Button("Restart");

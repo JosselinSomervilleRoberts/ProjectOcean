@@ -29,6 +29,7 @@ void Ocean::initialize(int N_samples_edge_arg)
     drawable.shading.phong.specular = 0.0f;
 
     // Noise
+    perlin.used = true;
     perlin.amplitude = 2.5f;
     perlin.octave = 2;
     perlin.persistency = 0.2;
@@ -127,6 +128,7 @@ void Ocean::send_waves_to_GPU() {
 }
 
 void Ocean::send_noise_to_GPU() {
+    opengl_uniform(drawable.shader, "noise.used", perlin.used);
     opengl_uniform(drawable.shader, "noise.amplitude", perlin.amplitude);
     opengl_uniform(drawable.shader, "noise.dilatation_space", perlin.dilatation_space);
     opengl_uniform(drawable.shader, "noise.dilatation_time", perlin.dilatation_time);

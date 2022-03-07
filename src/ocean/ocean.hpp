@@ -11,6 +11,7 @@ struct wave_parameters {
 };
 
 struct perlin_noise_parameters {
+	bool used;
 	float amplitude;
 	int octave;
 	float persistency;
