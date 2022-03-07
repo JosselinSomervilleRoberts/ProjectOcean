@@ -13,6 +13,7 @@ struct gui_parameters {
 };
 
 
+
 // The structure of the custom scene
 struct scene_structure {
 	

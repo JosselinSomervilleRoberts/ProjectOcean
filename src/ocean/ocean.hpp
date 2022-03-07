@@ -26,7 +26,11 @@ struct wind_parameters {
 	cgp::vec2 direction = { 0,-1};
 };
 
-
+struct LightSourceDir {
+	cgp::vec3 direction;
+	float intensity;
+	cgp::vec3 color;
+};
 
 class Ocean {
 public:
@@ -43,6 +47,7 @@ public:
 	// GPU functions
 	void send_waves_to_GPU();
 	void send_noise_to_GPU();
+	void send_lights_to_GPU();
 
 
 	// To generate
@@ -60,6 +65,8 @@ public:
 	// Drawable
 	cgp::mesh_drawable drawable;
 	bool show_wireframe = false;
+	std::vector<LightSourceDir> lights;
+	float light_intensity;
 };
 
 /*

@@ -27,16 +27,16 @@ struct LightSourceDir {
 	vec3 color;
 };
 
-LightSourceDir lightsourcesDir[8];
-int nb_lightsourcesDir = 3;
+uniform LightSourceDir lightsourcesDir[10];
+uniform int nb_lightsourcesDir;
 
 
 uniform vec3 color = vec3(1.0, 1.0, 1.0); // Unifor color of the object
 uniform float alpha = 1.0f; // alpha coefficient
-float Ka = 0.0f; // Ambient coefficient
+uniform float Ka = 0.0f; // Ambient coefficient
 uniform float Kd = 1.0f; // Diffuse coefficient
 uniform float Ks = 1.0f; // Specular coefficient
-uniform float specular_exp = 64.0; // Specular exponent
+uniform float specular_exp = 5.0; // Specular exponent
 uniform bool use_texture = true;
 uniform bool texture_inverse_y = false;
 
@@ -47,12 +47,12 @@ uniform bool texture_inverse_y = false;
 
 
 
-
+// Source: Code MyRenderer from INF584 (adapted)
 vec3 get_fd(vec3 albedo) {
 	return albedo / PI;
 }
 
-vec3 get_fs(vec3 w0, vec3 wi, vec3 wh, vec3 n, vec3 albedo, float roughness, float metallicness) {
+vec3 get_fs(vec3 w0, vec3 wi, vec3 wh, vec3 n, vec3 albedo, float roughness, float metallicness, float spec_exp) {
 	float alpha = roughness;
 	float alpha2 = pow(alpha, 2);
 		
@@ -63,7 +63,7 @@ vec3 get_fs(vec3 w0, vec3 wi, vec3 wh, vec3 n, vec3 albedo, float roughness, flo
 	float D = alpha2 /(PI * pow(1 + (alpha2 - 1) * n_wh2, 2));
 		
 	vec3 F0 = albedo + (vec3(1.) - albedo) * metallicness;
-	vec3 F = F0 - (vec3(1.) - F0) * pow(1. - wi_wh, 5);
+	vec3 F = F0 - (vec3(1.) - F0) * pow(1. - wi_wh, spec_exp);
 		
 	float G1 = 2 * n_wi/(n_wi+sqrt(alpha2+(1-alpha2)*pow(n_wi,2)));
 	float G2 = 2 * n_w0/(n_w0+sqrt(alpha2+(1-alpha2)*pow(n_w0,2)));
@@ -73,13 +73,13 @@ vec3 get_fs(vec3 w0, vec3 wi, vec3 wh, vec3 n, vec3 albedo, float roughness, flo
 	return fs;
 }
 
-vec3 get_r(vec3 position, vec3 normal, vec3 lightDirection, float lightIntensity, vec3 lightColor, vec3 albedo, float roughness, float metallicness, float K_diffuse, float K_specular) {
+vec3 get_r(vec3 position, vec3 normal, vec3 lightDirection, float lightIntensity, vec3 lightColor, vec3 albedo, float roughness, float metallicness, float K_diffuse, float K_specular, float spec_exp) {
 	vec3 w0 = - normalize(position);
 	vec3 wi = normalize(lightDirection);
 	vec3 wh = normalize(wi + w0);
 
 	vec3 n = normalize(normal);
-	vec3 fs = get_fs(w0, wi, wh, n, albedo, roughness, metallicness);
+	vec3 fs = get_fs(w0, wi, wh, n, albedo, roughness, metallicness, spec_exp);
 	vec3 fd = get_fd(albedo);
 
 	float scalarProd = max(0.0, dot(n, wi));
@@ -90,9 +90,9 @@ vec3 get_r(vec3 position, vec3 normal, vec3 lightDirection, float lightIntensity
 
 void main()
 {
-	lightsourcesDir[0] = LightSourceDir(vec3(0,0,-1), 3.0f, vec3(1.0f,1.0f,1.0f));
-	lightsourcesDir[1] = LightSourceDir(normalize(vec3(2,4,-1)), 3.0f, vec3(1.0f,0.0f,0.0f));
-	lightsourcesDir[2] = LightSourceDir(normalize(vec3(-2,4,-1)), 3.0f, vec3(0.0f,1.0f,0.0f));
+	//lightsourcesDir[0] = LightSourceDir(vec3(0,0,-1), 3.0f, vec3(1.0f,1.0f,1.0f));
+	//lightsourcesDir[1] = LightSourceDir(normalize(vec3(2,4,-1)), 3.0f, vec3(1.0f,0.0f,0.0f));
+	//lightsourcesDir[2] = LightSourceDir(normalize(vec3(-2,4,-1)), 3.0f, vec3(0.0f,1.0f,0.0f));
 
 	// Compute Normal
 	vec3 N = normalize(fragment.normal);
@@ -118,7 +118,7 @@ void main()
 		vec3 albedo = color_object;
 		float roughness = 0.8f;
 		float metallicness = 0.5f;
-		pbr_color += get_r(fragment.position, N, -lightDirection, lightsourcesDir[i].intensity, lightsourcesDir[i].color, albedo, roughness, metallicness, Kd, Ks);
+		pbr_color += get_r(fragment.position, N, -lightDirection, lightsourcesDir[i].intensity, lightsourcesDir[i].color, albedo, roughness, metallicness, Kd, Ks, specular_exp);
 	}
 
 

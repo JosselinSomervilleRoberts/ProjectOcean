@@ -57,7 +57,6 @@ void scene_structure::initialize()
 
 	ocean_texture = opengl_load_texture_image("assets/ocean.jpg");
 	initialize_ocean(gui.N_sample_edge);
-
 }
 
 void scene_structure::display_gui()
@@ -89,6 +88,14 @@ void scene_structure::display_gui()
 	ImGui::SliderFloat("Dilatation Space", &ocean.perlin.dilatation_space, 0.01f, 0.2f);
 	ImGui::SliderFloat("Dilatation Time", &ocean.perlin.dilatation_time, 0.1f, 2.0f);
 
+	ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing();
+	ImGui::Text("RENDERING");
+	ImGui::SliderFloat("Ambient", &ocean.drawable.shading.phong.ambient, 0.0f, 1.0f);
+	ImGui::SliderFloat("Diffuse", &ocean.drawable.shading.phong.diffuse, 0.0f, 1.0f);
+	ImGui::SliderFloat("Specular", &ocean.drawable.shading.phong.specular, 0.0f, 1.0f);
+	ImGui::SliderFloat("Specular Exponent", &ocean.drawable.shading.phong.specular_exponent, 0.0f, 100.0f);
+	ImGui::SliderFloat("Light Intensity", &ocean.light_intensity, 0.0f, 2.0f);
+
 	ImGui::Spacing(); ImGui::Spacing();
 	reset |= ImGui::Button("Restart");
 	if (reset) {
@@ -97,5 +104,3 @@ void scene_structure::display_gui()
 	}
 	
 }
-
-
