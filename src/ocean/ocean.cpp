@@ -26,13 +26,15 @@ void Ocean::initialize(int N_samples_edge_arg)
     // Drawable
     drawable.clear();
     drawable.initialize(ocean_mesh, "ocean");
+    drawable.texture = opengl_load_texture_image("assets/ocean.jpg");
+    drawable.shading.use_texture = true;
     drawable.shading.phong.specular = 0.3f;
     drawable.shading.phong.diffuse = 0.5f;
     drawable.shading.phong.ambient = 0.1f;
 
     // Noise
     perlin.used = true;
-    perlin.amplitude = 2.5f;
+    perlin.amplitude = 1.8f;
     perlin.octave = 2;
     perlin.persistency = 0.2;
     perlin.frequency = 1.0f;
@@ -45,7 +47,7 @@ void Ocean::initialize(int N_samples_edge_arg)
     N_waves_desired = 10;
 
     // Wind
-    wind.magnitude = 2.0f;
+    wind.magnitude = 3.0f;
     wind.direction = cgp::vec2(0.f, 1.f);
 
     // Lights

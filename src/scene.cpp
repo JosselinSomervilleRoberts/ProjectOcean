@@ -95,6 +95,7 @@ void scene_structure::display_gui()
 	ImGui::SliderFloat("Specular", &ocean.drawable.shading.phong.specular, 0.0f, 1.0f);
 	ImGui::SliderFloat("Specular Exponent", &ocean.drawable.shading.phong.specular_exponent, 0.0f, 100.0f);
 	ImGui::SliderFloat("Light Intensity", &ocean.light_intensity, 0.0f, 2.0f);
+	ImGui::Checkbox("Use Texture", &ocean.drawable.shading.use_texture);
 
 	ImGui::Spacing(); ImGui::Spacing();
 	reset |= ImGui::Button("Restart");
