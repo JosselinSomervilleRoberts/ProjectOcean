@@ -36,6 +36,7 @@ struct scene_structure {
 
 
 	Ocean ocean;                     // The values of the position, velocity, forces, etc, stored as a 2D grid
+	cgp::skybox_drawable skybox;
 	// Helper variables
 	bool simulation_running = true;   // Boolean indicating if the simulation should be computed
 	GLuint ocean_texture;             // Storage of the texture ID used for the ocean

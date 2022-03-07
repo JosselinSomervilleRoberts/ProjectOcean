@@ -29,6 +29,7 @@ void scene_structure::display()
 	//ocean_drawable.update(ocean); // update the positions on the GPU
 
 	// Display the ocean
+	draw(skybox, environment);
 	ocean.update();
 	ocean.draw(environment, timer.t);
 	//draw(ocean_drawable, environment, timer.t, waves);
@@ -57,6 +58,7 @@ void scene_structure::initialize()
 
 	ocean_texture = opengl_load_texture_image("assets/ocean.jpg");
 	initialize_ocean(gui.N_sample_edge);
+	skybox.initialize("assets/skybox/");         // indicate a path where to load the 6 texture images
 }
 
 void scene_structure::display_gui()
