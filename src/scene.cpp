@@ -42,7 +42,7 @@ void scene_structure::initialize_ocean(int N_sample)
 
 	// save the original position for wave function computation
 	original_position = ocean.position;
-	ocean.add_random_waves(50, cgp::vec2(0.f, 1.f));
+	//ocean.add_random_waves(1, cgp::vec2(0.f, 1.f));
 
 	//ocean_drawable.drawable.texture = ocean_texture;
 }

@@ -84,8 +84,6 @@ void Ocean::draw(cgp::scene_environment_basic const& environment, float t)
 
 void Ocean::add_random_waves(size_t N, cgp::vec2 global_dir) {
     waves.resize(N);
-
-    
    
     for (int i = 0; i < N; i++) {
         waves[i].frequency = PI * (1 + 3 * ((double)rand() / (RAND_MAX)));
@@ -94,7 +92,7 @@ void Ocean::add_random_waves(size_t N, cgp::vec2 global_dir) {
         dir.x = std::cos(angle) * global_dir.x + std::sin(angle) * global_dir.y;
         dir.y = std::cos(angle) * global_dir.y - std::sin(angle) * global_dir.x;
         waves[i].direction = dir;
-        waves[i].amplitude = 3.0f * ((double)rand() / (RAND_MAX)) / (float)(std::sqrt(N))*std::pow(std::fabs(cgp::dot(dir, global_dir)), 4.0f);
+        waves[i].amplitude = 3.0f * ((double)rand() / (RAND_MAX)) / (float)(std::sqrt(N)) * std::pow(std::fabs(cgp::dot(dir, global_dir)), 4.0f);
     }
 }
 

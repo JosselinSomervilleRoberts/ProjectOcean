@@ -16,6 +16,10 @@ struct perlin_noise_parameters {
 	float frequency_gain = 3.0f;
 	int octave = 7;
 	float height = 0;
+	float amplitude;
+	float dilatation;
+	float persistance;
+	float frequency;
 };
 
 struct wind_parameters {
