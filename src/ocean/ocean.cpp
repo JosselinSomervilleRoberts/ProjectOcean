@@ -27,6 +27,15 @@ void Ocean::initialize(int N_samples_edge_arg)
     drawable.clear();
     drawable.initialize(ocean_mesh, "ocean");
     drawable.shading.phong.specular = 0.0f;
+
+    // Noise
+    perlin.amplitude = 2.5f;
+    perlin.octave = 2;
+    perlin.persistency = 0.2;
+    perlin.frequency = 1.0f;
+    perlin.frequency_gain = 2;
+    perlin.dilatation_space = 0.1f;
+    perlin.dilatation_time = 1.0f;
 }
 
 void Ocean::update_normal()
@@ -61,6 +70,7 @@ void Ocean::draw(cgp::scene_environment_basic const& environment, float t)
 	// Data
 	opengl_uniform(drawable.shader, "t", t);
     send_waves_to_GPU();
+    send_noise_to_GPU();
 
 	// Set texture
 	glActiveTexture(GL_TEXTURE0); opengl_check;
@@ -114,4 +124,14 @@ void Ocean::send_waves_to_GPU() {
         opengl_uniform(drawable.shader, std::string("waves[" + str(i) + "].direction"), waves[i].direction);
         //opengl_uniform(drawable.shader, "waves[" + str(i) + "].directionY", waves[i].direction.y);
     }
+}
+
+void Ocean::send_noise_to_GPU() {
+    opengl_uniform(drawable.shader, "noise.amplitude", perlin.amplitude);
+    opengl_uniform(drawable.shader, "noise.dilatation_space", perlin.dilatation_space);
+    opengl_uniform(drawable.shader, "noise.dilatation_time", perlin.dilatation_time);
+    opengl_uniform(drawable.shader, "noise.frequency", perlin.frequency);
+    opengl_uniform(drawable.shader, "noise.frequency_gain", perlin.frequency_gain);
+    opengl_uniform(drawable.shader, "noise.persistency", perlin.persistency);
+    opengl_uniform(drawable.shader, "noise.octave", perlin.octave);
 }

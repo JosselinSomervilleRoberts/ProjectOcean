@@ -10,16 +10,14 @@ struct wave_parameters {
 	cgp::vec2 direction; // = { {1,1}, {0,1} };
 };
 
-
 struct perlin_noise_parameters {
-	float persistency = 0.7f;
-	float frequency_gain = 3.0f;
-	int octave = 7;
-	float height = 0;
 	float amplitude;
-	float dilatation;
-	float persistance;
+	int octave;
+	float persistency;
 	float frequency;
+	float frequency_gain;
+	float dilatation_space;
+	float dilatation_time;
 };
 
 struct wind_parameters {
@@ -42,6 +40,7 @@ public:
 
 	// GPU functions
 	void send_waves_to_GPU();
+	void send_noise_to_GPU();
 
 
 	// To generate

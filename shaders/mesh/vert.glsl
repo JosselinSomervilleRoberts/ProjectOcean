@@ -25,9 +25,21 @@ struct Wave {
 	vec2 direction;
 };
 
+
+struct PerlinNoise {
+	float amplitude;
+    int octave;
+	float persistency;
+	float frequency;
+	float frequency_gain;
+	float dilatation_space;
+    float dilatation_time;
+};
+
 uniform Wave waves[50];
 uniform int N_waves;
 uniform float t;
+uniform PerlinNoise noise;
 
 
 
@@ -107,7 +119,7 @@ float snoise3(vec3 v){
                                 dot(p2,x2), dot(p3,x3) ) );
 }
 
-float noise_perlin(vec3 p, float amplitude, int octave, float persistency, float frequency_gain, float dilatation_space, float dilatation_time)
+float noise_perlin(vec3 p, float amplitude, int octave, float persistency, float frequency, float frequency_gain, float dilatation_space, float dilatation_time)
 {
 	// dilatation
 	p.x *= dilatation_space;
@@ -116,7 +128,7 @@ float noise_perlin(vec3 p, float amplitude, int octave, float persistency, float
 
     float value = 0.0f;
     float a = 1.0f; // current magnitude
-    float f = 1.0f; // current frequency
+    float f = frequency; // current frequency
     for(int k=0;k<octave;k++)
     {
         float n = snoise3(vec3(p.x*f, p.y*f, p.z*f));
@@ -127,21 +139,14 @@ float noise_perlin(vec3 p, float amplitude, int octave, float persistency, float
     return amplitude * value;
 }
 
-
-struct PerlinNoise {
-	float amplitude;
-	float dilatation;
-	float persistance;
-	float frequency;
-};
 // =================================================================== //
 
 
-float wave_arg(float a, float f, vec2 dir, float u, float v) {
-    return f*t - (dir[0]*u + dir[1]*v);
+float wave_arg(float time, float a, float f, vec2 dir, float u, float v) {
+    return f*time - (dir[0]*u + dir[1]*v);
 }
 
-vec3 compute_wave_pos(vec3 pos)
+vec3 compute_wave_pos(vec3 pos, float time)
 {
     vec2 X = vec2(pos);
     float Z = pos[2];
@@ -149,47 +154,45 @@ vec3 compute_wave_pos(vec3 pos)
     for(int k=0; k<N_waves; k++){
         float a  = waves[k].amplitude;
         float f  = waves[k].frequency;
-        vec2 dir = normalize(waves[k].direction);//vec2(waves[k].direction);
+        vec2 dir = normalize(waves[k].direction);
         float u = pos.x;
         float v = pos.y;
-        float arg = wave_arg(a, f, dir, u, v);
+        float arg = wave_arg(time, a, f, dir, u, v);
         X += a * normalize(dir) * sin(arg);
         Z += a * cos(arg);
     }
-	//Z += pNoise(X, 2);
-	Z += noise_perlin(vec3(X, t), 2.5f, 2, 0.2, 2, 0.1f, 1.0f);
+    Z += noise_perlin(vec3(X, time), noise.amplitude, noise.octave, noise.persistency, noise.frequency, noise.frequency_gain, noise.dilatation_space, noise.dilatation_time);
+	//Z += noise_perlin(vec3(X, time), 2.5f, 2, 0.2, 1.0f, 2, 0.1f, 1.0f);
 
     return vec3(X[0], X[1], Z);
 }
 
-vec3 du(float u, float v, float z) {
+vec3 du(float time, float u, float v, float z) {
     float EPSILON = 0.01f;
-    vec3 v1 = compute_wave_pos(vec3(u + EPSILON, v, z));
-    vec3 v2 = compute_wave_pos(vec3(u - EPSILON, v, z));
+    vec3 v1 = compute_wave_pos(vec3(u + EPSILON, v, z), time);
+    vec3 v2 = compute_wave_pos(vec3(u - EPSILON, v, z), time);
     return (v1 - v2) / (2.0f * EPSILON);
 }
 
-vec3 dv(float u, float v, float z) {
+vec3 dv(float time, float u, float v, float z) {
     float EPSILON = 0.01f;
-    vec3 v1 = compute_wave_pos(vec3(u, v + EPSILON, z));
-    vec3 v2 = compute_wave_pos(vec3(u, v - EPSILON, z));
+    vec3 v1 = compute_wave_pos(vec3(u, v + EPSILON, z), time);
+    vec3 v2 = compute_wave_pos(vec3(u, v - EPSILON, z), time);
     return (v1 - v2) / (2.0f * EPSILON);
 }
 
-vec3 compute_wave_norm(vec3 pos)
+vec3 compute_wave_norm(vec3 pos, float time)
 {
-    vec3 grad_u = du(pos.x, pos.y, pos.z);
-    vec3 grad_v = dv(pos.x, pos.y, pos.z);
+    vec3 grad_u = du(time, pos.x, pos.y, pos.z);
+    vec3 grad_v = dv(time, pos.x, pos.y, pos.z);
 
     return normalize(cross(grad_u, grad_v));
 }
 
 void main()
 {
-    //waves[0] = Wave(1.0f, 3.1415f, normalize(vec2(1.0f, 0.2f)));
-
-    vec3 pos = compute_wave_pos(position);
-    vec3 norm = compute_wave_norm(position);
+    vec3 pos = compute_wave_pos(position, t);
+    vec3 norm = compute_wave_norm(position, t);
 
 	fragment.position = vec3(model * vec4(pos,1.0));
 	fragment.normal   = vec3(model * vec4(norm  ,0.0));
