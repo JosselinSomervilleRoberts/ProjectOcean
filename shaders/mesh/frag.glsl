@@ -90,10 +90,6 @@ vec3 get_r(vec3 position, vec3 normal, vec3 lightDirection, float lightIntensity
 
 void main()
 {
-	//lightsourcesDir[0] = LightSourceDir(vec3(0,0,-1), 3.0f, vec3(1.0f,1.0f,1.0f));
-	//lightsourcesDir[1] = LightSourceDir(normalize(vec3(2,4,-1)), 3.0f, vec3(1.0f,0.0f,0.0f));
-	//lightsourcesDir[2] = LightSourceDir(normalize(vec3(-2,4,-1)), 3.0f, vec3(0.0f,1.0f,0.0f));
-
 	// Compute Normal
 	vec3 N = normalize(fragment.normal);
 	if (gl_FrontFacing == false) {

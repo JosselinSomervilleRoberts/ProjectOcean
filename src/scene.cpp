@@ -6,33 +6,15 @@ using namespace cgp;
 
 void scene_structure::display()
 {
-	// Basics common elements
-	// ***************************************** //
 	timer.update();
 	environment.light = environment.camera.position();
 	if (gui.display_frame)
 		draw(global_frame, environment);
 
-	// Simulation of the ocean
-	// ***************************************** //
-	//compute_vertex_position(ocean, original_position, waves, timer.t);
-	
-	if (gui.display_noise) {
-		//compte_Perlin_noise(ocean, original_position, perlin_noise);
-	}
-
-	// ocean display
-	// ***************************************** //
-	
-	// Prepare to display the updated ocean
-	//ocean.update_normal();        // compute the new normals
-	//ocean_drawable.update(ocean); // update the positions on the GPU
-
 	// Display the ocean
 	draw(skybox, environment);
 	ocean.update();
 	ocean.draw(environment, timer.t);
-	//draw(ocean_drawable, environment, timer.t, waves);
 }
 
 
@@ -41,12 +23,7 @@ void scene_structure::initialize_ocean(int N_sample)
 {
 	ocean.initialize(N_sample);
 	ocean.drawable.shading.color = cgp::vec3(0.3f, 0.3f, 1.0f);
-
-	// save the original position for wave function computation
 	original_position = ocean.position;
-	//ocean.add_random_waves(5);
-
-	//ocean_drawable.drawable.texture = ocean_texture;
 }
 
 

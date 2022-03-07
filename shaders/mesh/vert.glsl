@@ -163,8 +163,6 @@ vec3 compute_wave_pos(vec3 pos, float time)
         Z += a * cos(arg);
     }
     if (noise.used) Z += noise_perlin(vec3(X, time), noise.amplitude, noise.octave, noise.persistency, noise.frequency, noise.frequency_gain, noise.dilatation_space, noise.dilatation_time);
-	//Z += noise_perlin(vec3(X, time), 2.5f, 2, 0.2, 1.0f, 2, 0.1f, 1.0f);
-
     return vec3(X[0], X[1], Z);
 }
 
