@@ -37,7 +37,7 @@ struct PerlinNoise {
     float dilatation_time;
 };
 
-uniform Wave waves[50];
+uniform Wave waves[100];
 uniform int N_waves;
 uniform float t;
 uniform PerlinNoise noise;

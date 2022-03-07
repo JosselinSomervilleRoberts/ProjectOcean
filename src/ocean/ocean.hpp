@@ -5,9 +5,9 @@
 
 
 struct wave_parameters {
-	float amplitude; // = { 0.5f, 0.3f };
-	float frequency; // = { 2 * 3.14f, 3.14f };
-	cgp::vec2 direction; // = { {1,1}, {0,1} };
+	float amplitude;
+	float frequency;
+	cgp::vec2 direction;
 };
 
 struct perlin_noise_parameters {
@@ -23,7 +23,7 @@ struct perlin_noise_parameters {
 
 struct wind_parameters {
 	float magnitude = 0.0f;
-	cgp::vec3 direction = { 0,-1,0 };
+	cgp::vec2 direction = { 0,-1};
 };
 
 
@@ -37,7 +37,8 @@ public:
 	void update_normal();
 	void update();
 
-	void add_random_waves(size_t N, cgp::vec2 global_dir);
+	void add_random_waves(size_t N);
+	void update_waves();
 
 	// GPU functions
 	void send_waves_to_GPU();
@@ -48,6 +49,8 @@ public:
 	std::vector<wave_parameters> waves;
 	perlin_noise_parameters perlin;
 	wind_parameters wind;
+	float wave_exponant;
+	int N_waves_desired;
 
 	// Geometry
 	cgp::grid_2D<cgp::vec3> position;

@@ -29,6 +29,7 @@ void scene_structure::display()
 	//ocean_drawable.update(ocean); // update the positions on the GPU
 
 	// Display the ocean
+	ocean.update();
 	ocean.draw(environment, timer.t);
 	//draw(ocean_drawable, environment, timer.t, waves);
 }
@@ -42,7 +43,7 @@ void scene_structure::initialize_ocean(int N_sample)
 
 	// save the original position for wave function computation
 	original_position = ocean.position;
-	//ocean.add_random_waves(1, cgp::vec2(0.f, 1.f));
+	//ocean.add_random_waves(5);
 
 	//ocean_drawable.drawable.texture = ocean_texture;
 }
@@ -69,7 +70,12 @@ void scene_structure::display_gui()
 
 	ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing();
 	ImGui::Text("WAVES SETTINGS");
+	ImGui::SliderInt("Wave Number", &ocean.N_waves_desired, 0, 100);
+	ImGui::SliderFloat("Exponant", &ocean.wave_exponant, 0.1f, 8.0f);
 
+	ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing();
+	ImGui::Text("WIND SETTINGS");
+	ImGui::SliderFloat("Magnitude", &ocean.wind.magnitude, 0.0f, 5.0f);
 	
 
 	ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing();
