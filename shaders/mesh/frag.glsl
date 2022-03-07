@@ -11,37 +11,96 @@ in struct fragment_data
 } fragment;
 
 layout(location=0) out vec4 FragColor;
+uniform mat4 model;
+uniform mat4 view;
+uniform mat4 projection;
 
 uniform sampler2D image_texture;
 
-uniform vec3 light = vec3(1.0, 1.0, 1.0);
+#define PI 3.1415
+
+
+// Lights
+struct LightSourceDir {
+	vec3 direction;
+	float intensity;
+	vec3 color;
+};
+
+LightSourceDir lightsourcesDir[8];
+int nb_lightsourcesDir = 3;
+
 
 uniform vec3 color = vec3(1.0, 1.0, 1.0); // Unifor color of the object
 uniform float alpha = 1.0f; // alpha coefficient
-uniform float Ka = 0.4; // Ambient coefficient
-uniform float Kd = 0.8; // Diffuse coefficient
-uniform float Ks = 0.4f;// Specular coefficient
+float Ka = 0.0f; // Ambient coefficient
+uniform float Kd = 1.0f; // Diffuse coefficient
+uniform float Ks = 1.0f; // Specular coefficient
 uniform float specular_exp = 64.0; // Specular exponent
 uniform bool use_texture = true;
 uniform bool texture_inverse_y = false;
 
+
+
+
+
+
+
+
+
+vec3 get_fd(vec3 albedo) {
+	return albedo / PI;
+}
+
+vec3 get_fs(vec3 w0, vec3 wi, vec3 wh, vec3 n, vec3 albedo, float roughness, float metallicness) {
+	float alpha = roughness;
+	float alpha2 = pow(alpha, 2);
+		
+	float n_wh2 = pow(max(0., dot(n, wh)), 2);
+	float n_wi = dot(n, wi);
+	float n_w0 = dot(n, w0);
+	float wi_wh = max(0., dot(wi, wh));
+	float D = alpha2 /(PI * pow(1 + (alpha2 - 1) * n_wh2, 2));
+		
+	vec3 F0 = albedo + (vec3(1.) - albedo) * metallicness;
+	vec3 F = F0 - (vec3(1.) - F0) * pow(1. - wi_wh, 5);
+		
+	float G1 = 2 * n_wi/(n_wi+sqrt(alpha2+(1-alpha2)*pow(n_wi,2)));
+	float G2 = 2 * n_w0/(n_w0+sqrt(alpha2+(1-alpha2)*pow(n_w0,2)));
+	float G = G1 * G2;
+		
+	vec3 fs = D*F*G/(4*n_wi*n_w0);
+	return fs;
+}
+
+vec3 get_r(vec3 position, vec3 normal, vec3 lightDirection, float lightIntensity, vec3 lightColor, vec3 albedo, float roughness, float metallicness, float K_diffuse, float K_specular) {
+	vec3 w0 = - normalize(position);
+	vec3 wi = normalize(lightDirection);
+	vec3 wh = normalize(wi + w0);
+
+	vec3 n = normalize(normal);
+	vec3 fs = get_fs(w0, wi, wh, n, albedo, roughness, metallicness);
+	vec3 fd = get_fd(albedo);
+
+	float scalarProd = max(0.0, dot(n, wi));
+	vec3 luminosity = lightIntensity * lightColor;
+		
+	return luminosity * (K_diffuse*fd + K_specular*fs) * scalarProd;
+}
+
 void main()
 {
+	lightsourcesDir[0] = LightSourceDir(vec3(0,0,-1), 3.0f, vec3(1.0f,1.0f,1.0f));
+	lightsourcesDir[1] = LightSourceDir(normalize(vec3(2,4,-1)), 3.0f, vec3(1.0f,0.0f,0.0f));
+	lightsourcesDir[2] = LightSourceDir(normalize(vec3(-2,4,-1)), 3.0f, vec3(0.0f,1.0f,0.0f));
+
+	// Compute Normal
 	vec3 N = normalize(fragment.normal);
 	if (gl_FrontFacing == false) {
 		N = -N;
 	}
-	vec3 L = normalize(light-fragment.position);
 
-	float diffuse = max(dot(N,L),0.0);
-	float specular = 0.0;
-	if(diffuse>0.0){
-		vec3 R = reflect(-L,N);
-		vec3 V = normalize(fragment.eye-fragment.position);
-		specular = pow( max(dot(R,V),0.0), specular_exp );
-	}
-
-
+	// COLOR of the fragment 
 	vec2 uv_image = vec2(fragment.uv.x, 1.0-fragment.uv.y);
 	if(texture_inverse_y) {
 		uv_image.y = 1.0-uv_image.y;
@@ -51,7 +110,18 @@ void main()
 		color_image_texture=vec4(1.0,1.0,1.0,1.0);
 	}
 	vec3 color_object  = fragment.color * color * color_image_texture.rgb;
-	vec3 color_shading = (Ka + Kd * diffuse) * color_object + Ks * specular * vec3(1.0, 1.0, 1.0);
-	
+
+	// PBR Shading
+	vec3 pbr_color = vec3(0);
+	for(int i=0; i<nb_lightsourcesDir; i++) {
+		vec3 lightDirection = normalize(vec3(model * vec4(lightsourcesDir[i].direction, 1.0)));
+		vec3 albedo = color_object;
+		float roughness = 0.8f;
+		float metallicness = 0.5f;
+		pbr_color += get_r(fragment.position, N, -lightDirection, lightsourcesDir[i].intensity, lightsourcesDir[i].color, albedo, roughness, metallicness, Kd, Ks);
+	}
+
+
+	vec3 color_shading = (Ka * color_object) + pbr_color;
 	FragColor = vec4(color_shading, alpha * color_image_texture.a);
 }
