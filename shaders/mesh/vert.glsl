@@ -23,6 +23,7 @@ struct Wave {
 	float amplitude;
 	float angular_velocity;
 	vec2 K;
+  vec2 dir;
 };
 
 
@@ -133,7 +134,7 @@ float noise_perlin(vec3 p, float amplitude, int octave, float persistency, float
     for(int k=0;k<octave;k++)
     {
         float n = snoise3(vec3(p.x*f, p.y*f, p.z*f));
-        value += a*(0.5f+0.5f*n);
+        value += a * (0.5f+0.5f*n);
         f *= frequency_gain;
         a *= persistency;
     }
@@ -144,7 +145,7 @@ float noise_perlin(vec3 p, float amplitude, int octave, float persistency, float
 
 
 float wave_arg(float t, float a, float w, vec2 K, float u, float v) {
-    return w * t -  (K[0]*u + K[1]*v);
+    return w * t - (K[0]*u + K[1]*v);
 }
 
 vec3 compute_wave_pos(vec3 pos, float time)
@@ -158,14 +159,10 @@ vec3 compute_wave_pos(vec3 pos, float time)
         vec2 K = waves[k].K;
         float u = pos.x;
         float v = pos.y;
-
         float arg = wave_arg(time, a, w, K, u, v);
 
-        // generating various wavelength
-        //float K = f*f/9.8f;
-
-        X +=  0.2f * K * a * sin(arg);//+ 2*3.14f * K/(4*3.14*3.14/9.8));
-        Z += a * cos(arg);// + 2*3.14f * K/(4*3.14*3.14/9.8));
+        X += a * waves[k].dir * sin(arg);
+        Z += a * cos(arg);
     }
     if (noise.used) Z += noise_perlin(vec3(X, time), noise.amplitude, noise.octave, noise.persistency, noise.frequency, noise.frequency_gain, noise.dilatation_space, noise.dilatation_time);
     return vec3(X[0], X[1], Z);

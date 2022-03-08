@@ -6,6 +6,7 @@ struct wave_parameters {
 	float amplitude;
 	float angular_velocity;
 	cgp::vec2 K; // wavelength with direction included
+	cgp::vec2 dir;
 };
 
 struct perlin_noise_parameters {
