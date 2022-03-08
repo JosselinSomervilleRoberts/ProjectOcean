@@ -42,11 +42,6 @@ uniform bool texture_inverse_y = false;
 
 
 
-
-
-
-
-
 // Source: Code MyRenderer from INF584 (adapted)
 vec3 get_fd(vec3 albedo) {
 	return albedo / PI;

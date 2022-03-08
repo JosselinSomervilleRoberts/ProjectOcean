@@ -2,11 +2,10 @@
 
 #include "cgp/cgp.hpp"
 
-
 struct wave_parameters {
 	float amplitude;
-	float frequency;
-	cgp::vec2 direction;
+	float angular_velocity;
+	cgp::vec2 K; // wavelength with direction included
 };
 
 struct perlin_noise_parameters {
@@ -48,7 +47,6 @@ public:
 	void send_noise_to_GPU();
 	void send_lights_to_GPU();
 
-
 	// To generate
 	std::vector<wave_parameters> waves;
 	perlin_noise_parameters perlin;
@@ -56,9 +54,9 @@ public:
 	float wave_exponant;
 	int N_waves_desired;
 
-	// Geometry
+	// Geometry used for FFT
 	cgp::grid_2D<cgp::vec3> position;
-	cgp::grid_2D<cgp::vec3> normal; // Normally not used
+	cgp::grid_2D<cgp::vec3> normal;
 	cgp::buffer<cgp::uint3> triangle_connectivity;
 
 	// Drawable
