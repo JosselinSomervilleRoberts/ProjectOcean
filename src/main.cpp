@@ -17,7 +17,7 @@ cgp::helper_common_scene helper_common;
 cgp::inputs_interaction_parameters inputs;
 
 // The custom structure of the current scene defined in "scene.hpp"
-scene_structure scene;
+Scene scene;
 
 
 // *************************** //

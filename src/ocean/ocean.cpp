@@ -1,4 +1,5 @@
 #include "ocean.hpp"
+#include "scene.hpp"
 
 using namespace cgp;
 #define PI 3.1415f
@@ -45,6 +46,7 @@ void Ocean::initialize(int N_samples_edge_arg)
     drawable.shading.phong.specular = 0.3f;
     drawable.shading.phong.diffuse = 0.5f;
     drawable.shading.phong.ambient = 0.1f;
+    drawable.shading.color = cgp::vec3(0.3f, 0.3f, 1.0f);
 
     // Noise
     perlin.used = true;
@@ -63,12 +65,6 @@ void Ocean::initialize(int N_samples_edge_arg)
     // Wind
     wind.magnitude = 5.0f;
     wind.direction = cgp::vec2(0.f, 1.f);
-
-    // Lights
-    lights.push_back({ cgp::vec3(0, 0, -1), 2.0f, cgp::vec3(1.0f, 1.0f, 1.0f) });
-    //lights.push_back({ normalize(vec3(2,4,-1)), 3.0f, vec3(1.0f,0.0f,0.0f) });
-    //lights.push_back({ normalize(vec3(-2,4,-1)), 3.0f, vec3(0.0f,1.0f,0.0f) });
-    light_intensity = 1.0f;
 }
 
 void Ocean::update_normal()
@@ -109,8 +105,10 @@ void Ocean::update_waves() {
 
 /* Functions to generate GPU */
 
-void Ocean::draw(cgp::scene_environment_basic const& environment, float t)
+void Ocean::draw(Scene& scene, float t)
 {
+    cgp::scene_environment_basic const& environment = scene.environment;
+    scene.send_lights_to_GPU(fond.shader);
     cgp::draw(fond, environment);
 
 	if (drawable.number_triangles == 0) return;
@@ -129,7 +127,7 @@ void Ocean::draw(cgp::scene_environment_basic const& environment, float t)
 	opengl_uniform(drawable.shader, "t", t);
     send_waves_to_GPU();
     send_noise_to_GPU();
-    send_lights_to_GPU();
+    scene.send_lights_to_GPU(drawable.shader);
 
 	// Set texture
 	glActiveTexture(GL_TEXTURE0); opengl_check;
@@ -182,18 +180,6 @@ void Ocean::send_noise_to_GPU() {
     opengl_uniform(drawable.shader, "noise.frequency_gain", perlin.frequency_gain);
     opengl_uniform(drawable.shader, "noise.persistency", perlin.persistency);
     opengl_uniform(drawable.shader, "noise.octave", perlin.octave);
-}
-
-
-void Ocean::send_lights_to_GPU() {
-    int N_lights = lights.size();
-    opengl_uniform(drawable.shader, "nb_lightsourcesDir", N_lights);
-
-    for (int i = 0; i < N_lights; i++) {
-        opengl_uniform(drawable.shader, "lightsourcesDir[" + str(i) + "].direction", lights[i].direction);
-        opengl_uniform(drawable.shader, "lightsourcesDir[" + str(i) + "].intensity", lights[i].intensity * light_intensity);
-        opengl_uniform(drawable.shader, "lightsourcesDir[" + str(i) + "].color", lights[i].color);
-    }
 }
 
 

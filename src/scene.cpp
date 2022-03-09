@@ -3,51 +3,52 @@
 
 using namespace cgp;
 
+Scene::Scene() {}
 
-void scene_structure::display()
+void Scene::display()
 {
-	timer.update();
+	// Update the elements
+	update();
+
+	// Draw the elements
 	environment.light = environment.camera.position();
-	if (gui.display_frame)
-		draw(global_frame, environment);
-
-	// Display the ocean
 	draw(skybox, environment);
-
-	ocean.update();
-	ship.update(ocean, timer.t);
-
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	ship.draw(environment);
-	ocean.draw(environment, timer.t);
+	ocean.draw(*this, timer.t);
 	glDisable(GL_BLEND);
+	if (gui.display_frame) draw(global_frame, environment);
+}
+
+void Scene::update() {
+	if (simulation_running) timer.update();
+	ocean.update();
+	ship.update(ocean, timer.t);
 }
 
 
-// Compute a new ocean in its initial position (can be called multiple times)
-void scene_structure::initialize_ocean(int N_sample)
-{
-	ocean.initialize(N_sample);
-	ocean.drawable.shading.color = cgp::vec3(0.3f, 0.3f, 1.0f);
-	original_position = ocean.position;
-}
 
-
-void scene_structure::initialize()
+void Scene::initialize()
 {
+	// Intialize environment
 	global_frame.initialize(mesh_primitive_frame(), "Frame");
 	//environment.camera.look_at({0.0f, 1.0f, 1.5f}, { 0,0,0.5f }, { 0,0,1.0f });
 	environment.camera.look_at({0.0f, 70, 20}, { 0,0,0 }, { 0,0,1.0f});
 
-	ocean_texture = opengl_load_texture_image("assets/ocean.jpg");
-	initialize_ocean(gui.N_sample_edge);
-	skybox.initialize("assets/skybox/");         // indicate a path where to load the 6 texture images
-
+	// Initialize elements to draw
+	ocean.initialize(gui.N_sample_edge);
+	skybox.initialize("assets/skybox/");
 	ship.initialize();
+
+	// Lights
+	lights.push_back({ cgp::vec3(0, 0, -1), 2.0f, cgp::vec3(1.0f, 1.0f, 1.0f) });
+	//lights.push_back({ normalize(vec3(2,4,-1)), 3.0f, vec3(1.0f,0.0f,0.0f) });
+	//lights.push_back({ normalize(vec3(-2,4,-1)), 3.0f, vec3(0.0f,1.0f,0.0f) });
+	light_intensity = 1.0f;
 }
 
-void scene_structure::display_gui()
+void Scene::display_gui()
 {
 	bool reset = false;
 
@@ -89,14 +90,28 @@ void scene_structure::display_gui()
 	ImGui::SliderFloat("Diffuse", &ocean.drawable.shading.phong.diffuse, 0.0f, 1.0f);
 	ImGui::SliderFloat("Specular", &ocean.drawable.shading.phong.specular, 0.0f, 1.0f);
 	ImGui::SliderFloat("Specular Exponent", &ocean.drawable.shading.phong.specular_exponent, 0.0f, 100.0f);
-	ImGui::SliderFloat("Light Intensity", &ocean.light_intensity, 0.0f, 2.0f);
+	ImGui::SliderFloat("Light Intensity", &this->light_intensity, 0.0f, 2.0f);
 	ImGui::Checkbox("Use Texture", &ocean.drawable.shading.use_texture);
 
-	ImGui::Spacing(); ImGui::Spacing();
+	ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing();
+	ImGui::Text("SIMULATION SETTINGS");
+	ImGui::Checkbox("Display Frame", &gui.display_frame);
+	ImGui::Checkbox("Running", &simulation_running);
 	reset |= ImGui::Button("Restart");
 	if (reset) {
-		initialize_ocean(gui.N_sample_edge);
+		ocean.initialize(gui.N_sample_edge);
 		simulation_running = true;
 	}
 	
+}
+
+void Scene::send_lights_to_GPU(GLuint shader) {
+	int N_lights = lights.size();
+	opengl_uniform(shader, "nb_lightsourcesDir", N_lights);
+
+	for (int i = 0; i < N_lights; i++) {
+		opengl_uniform(shader, "lightsourcesDir[" + str(i) + "].direction", lights[i].direction);
+		opengl_uniform(shader, "lightsourcesDir[" + str(i) + "].intensity", lights[i].intensity * light_intensity);
+		opengl_uniform(shader, "lightsourcesDir[" + str(i) + "].color", lights[i].color);
+	}
 }

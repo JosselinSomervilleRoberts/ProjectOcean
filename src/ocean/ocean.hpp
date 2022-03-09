@@ -4,13 +4,14 @@
 #include "wave.hpp"
 #include "structures.hpp"
 
+class Scene;
 
 class Ocean {
 public:
 
 	Ocean();
 	void initialize(int N_samples_edge);
-	void draw(cgp::scene_environment_basic const& environment, float t);
+	void draw(Scene& environment, float t);
 	void update_normal();
 	void update();
 
@@ -20,7 +21,6 @@ public:
 	// GPU functions
 	void send_waves_to_GPU();
 	void send_noise_to_GPU();
-	void send_lights_to_GPU();
 
 	// Shader functions translated to C++
 	cgp::vec3 getVertexPos(cgp::vec3 position, float time);
@@ -42,8 +42,6 @@ public:
 	cgp::mesh_drawable drawable;
 	cgp::mesh_drawable fond;
 	bool show_wireframe = false;
-	std::vector<LightSourceDir> lights;
-	float light_intensity;
 
 	// Ecume
 	float ecume_threshold = 0.5f;

@@ -13,42 +13,37 @@ struct gui_parameters {
 };
 
 // The structure of the custom scene
-struct scene_structure {
+class Scene {
 	
-	// ****************************** //
-	// Elements and shapes of the scene
-	// ****************************** //
-
-	cgp::mesh_drawable global_frame;          // The standard global frame
-	cgp::scene_environment_basic environment; // Standard environment controler
-	gui_parameters gui;                       // Standard GUI element storage
-	
-	// ****************************** //
-	// Elements and shapes of the scene
-	// ****************************** //
-	cgp::timer_basic timer;
-
-	// ocean related structures
-	
-	cgp::grid_2D<cgp::vec3> original_position; // Extra storage of the original position of the mesh
-
-
-	Ship ship;
-	Ocean ocean;                     // The values of the position, velocity, forces, etc, stored as a 2D grid
-	cgp::skybox_drawable skybox;
-	// Helper variables
-	bool simulation_running = true;   // Boolean indicating if the simulation should be computed
-	GLuint ocean_texture;             // Storage of the texture ID used for the ocean
-
-	// ****************************** //
-	// Functions
-	// ****************************** //
+public:
+	Scene();
 
 	void initialize();  // Standard initialization to be called before the animation loop
 	void display();     // The frame display to be called within the animation loop
+	void update();
 	void display_gui(); // The display of the GUI, also called within the animation loop
 
-	void initialize_ocean(int N_sample); // Recompute the ocean from scratch
+	void send_lights_to_GPU(GLuint shader);
+
+	cgp::scene_environment_basic environment; // Standard environment controler
+
+private:
+	// Drawing elements helpers
+	cgp::mesh_drawable global_frame;          // The standard global frame
+	gui_parameters gui;                       // Standard GUI element storage
+
+	// Elements to draw
+	Ship ship;
+	Ocean ocean;              
+	cgp::skybox_drawable skybox;
+	
+	// For simulation
+	cgp::timer_basic timer;
+	bool simulation_running = false;
+
+	// Lights
+	std::vector<LightSourceDir> lights;
+	float light_intensity;
 };
 
 

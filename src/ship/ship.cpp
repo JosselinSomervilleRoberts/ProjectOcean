@@ -1,4 +1,5 @@
 #include "Ship.hpp"
+#include "scene.hpp"
 
 using namespace cgp;
 #define PI 3.14159f
@@ -7,14 +8,16 @@ Ship::Ship() {}
 
 void Ship::initialize() {
 	drawable.initialize(mesh_load_file_obj("assets/ship_translated.obj"));
-	drawable.texture = opengl_load_texture_image("assets/ship.jpg");
 	drawable.shader = opengl_load_shader("shaders/ship/vert.glsl", "shaders/ship/frag.glsl");
+	drawable.texture = opengl_load_texture_image("assets/ship.jpg");
 }
 
-void Ship::draw(cgp::scene_environment_basic const& environment) {
+void Ship::draw(cgp::scene_environment_basic environment)
+{
 	drawable.transform.rotation = rotation;
 	drawable.transform.translation = translation;
 	drawable.transform.scaling = scaling;
+	//scene.send_lights_to_GPU(drawable.shader);
 	cgp::draw(drawable, environment);
 }
 

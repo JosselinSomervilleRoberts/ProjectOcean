@@ -209,8 +209,8 @@ float dN(float time, float u, float v, float z) {
 }
 
 float compute_ecume(float time, vec3 wave_pos, vec3 uv_pos, vec3 norm) {
-    float dN_value = dN(time, uv_pos.x, uv_pos.y, uv_pos.z);
     if (wave_pos.z > 3.65f) return min(1.0f, 0.7f + wave_pos.z - 3.65f);
+    float dN_value = dN(time, uv_pos.x, uv_pos.y, uv_pos.z);
     return min(1.0f, max(0, (2 - dN_value)) * min(1, wave_pos.z - 2.0f) * (1.2f - norm.z));
 }
 

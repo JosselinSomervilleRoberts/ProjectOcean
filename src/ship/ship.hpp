@@ -3,12 +3,14 @@
 #include "cgp/cgp.hpp"
 #include "ocean/ocean.hpp"
 
+class Scene;
+
 class Ship {
 public:
 
 	Ship();
 	void initialize();
-	void draw(cgp::scene_environment_basic const& environment);
+	void draw(cgp::scene_environment_basic environment);
 
 	void computeRefPoints();
 
