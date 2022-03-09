@@ -4,8 +4,9 @@
 
 struct wave_parameters {
 	float amplitude;
-	float frequency;
-	cgp::vec2 direction;
+	float angular_velocity;
+	cgp::vec2 K;
+	cgp::vec2 dir;
 };
 
 struct perlin_noise_parameters {

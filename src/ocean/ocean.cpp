@@ -36,8 +36,8 @@ void Ocean::initialize(int N_samples_edge_arg)
     // Noise
     perlin.used = true;
     perlin.amplitude = 1.8f;
-    perlin.octave = 7;
-    perlin.persistency = 0.4;
+    perlin.octave = 5;
+    perlin.persistency = 0.4f;
     perlin.frequency = 1.0f;
     perlin.frequency_gain = 2.2f;
     perlin.dilatation_space = 0.1f;
@@ -48,7 +48,7 @@ void Ocean::initialize(int N_samples_edge_arg)
     N_waves_desired = 20;
 
     // Wind
-    wind.magnitude = 3.0f;
+    wind.magnitude = 5.0f;
     wind.direction = cgp::vec2(0.f, 1.f);
 
     // Lights
