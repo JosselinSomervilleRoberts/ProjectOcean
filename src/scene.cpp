@@ -15,7 +15,7 @@ void Scene::display()
 	draw(skybox, environment);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	ship.draw(environment);
+	ship.draw(*this);
 	ocean.draw(*this, timer.t);
 	glDisable(GL_BLEND);
 	if (gui.display_frame) draw(global_frame, environment);
@@ -79,23 +79,22 @@ void Scene::display_gui()
 	ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing();
 	ImGui::Text("SHIP SETTINGS");
 	ImGui::SliderInt("Triangle Number", &ship.N_triangles_desired, 3, 50);
-	ImGui::SliderFloat("Mass", &ship.m, 1.0f, 300.0f);
-	ImGui::SliderFloat("Friction", &ship.K, 0.0f, 100.0f);
+	ImGui::SliderFloat("Mass", &ship.m, 1.0f, 100.0f);
+	ImGui::SliderFloat("Friction", &ship.K, 0.0f, 50.0f);
 
 	ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing();
 	ImGui::Text("RENDERING");
 	ImGui::SliderFloat("Ecume Threshold", &ocean.ecume_threshold, 0.0f, 1.0f);
 	ImGui::SliderFloat("Ecume Exponent", &ocean.ecume_exponent, 0.0f, 1.0f);
-	ImGui::SliderFloat("Ambient", &ocean.drawable.shading.phong.ambient, 0.0f, 1.0f);
-	ImGui::SliderFloat("Diffuse", &ocean.drawable.shading.phong.diffuse, 0.0f, 1.0f);
-	ImGui::SliderFloat("Specular", &ocean.drawable.shading.phong.specular, 0.0f, 1.0f);
-	ImGui::SliderFloat("Specular Exponent", &ocean.drawable.shading.phong.specular_exponent, 0.0f, 100.0f);
+	ImGui::SliderFloat("Ambient", &ambient, 0.0f, 1.0f);
+	ImGui::SliderFloat("Diffuse", &diffuse, 0.0f, 1.0f);
+	ImGui::SliderFloat("Specular", &specular, 0.0f, 1.0f);
+	ImGui::SliderFloat("Specular Exponent", &specular_exponent, 0.0f, 100.0f);
 	ImGui::SliderFloat("Light Intensity", &this->light_intensity, 0.0f, 2.0f);
-	ImGui::Checkbox("Use Texture", &ocean.drawable.shading.use_texture);
+	ImGui::Checkbox("Use Texture", &use_texture);
 
 	ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing();
 	ImGui::Text("SIMULATION SETTINGS");
-	ImGui::Checkbox("Display Frame", &gui.display_frame);
 	ImGui::Checkbox("Running", &simulation_running);
 	reset |= ImGui::Button("Restart");
 	if (reset) {

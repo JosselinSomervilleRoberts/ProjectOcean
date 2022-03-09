@@ -42,10 +42,6 @@ void Ocean::initialize(int N_samples_edge_arg)
     drawable.clear();
     drawable.initialize(ocean_mesh, "ocean");
     drawable.texture = opengl_load_texture_image("assets/ocean.jpg");
-    drawable.shading.use_texture = true;
-    drawable.shading.phong.specular = 0.3f;
-    drawable.shading.phong.diffuse = 0.5f;
-    drawable.shading.phong.ambient = 0.1f;
     drawable.shading.color = cgp::vec3(0.3f, 0.3f, 1.0f);
 
     // Noise
@@ -55,8 +51,8 @@ void Ocean::initialize(int N_samples_edge_arg)
     perlin.persistency = 0.4f;
     perlin.frequency = 1.0f;
     perlin.frequency_gain = 2.2f;
-    perlin.dilatation_space = 0.1f;
-    perlin.dilatation_time = 1.0f;
+    perlin.dilatation_space = 0.07f;
+    perlin.dilatation_time = 0.5f;
 
     // Waves
     wave_exponant = 7.0f;
@@ -107,6 +103,18 @@ void Ocean::update_waves() {
 
 void Ocean::draw(Scene& scene, float t)
 {
+    drawable.shading.phong.specular = scene.getSpecular();
+    drawable.shading.phong.diffuse  = scene.getDiffuse();
+    drawable.shading.phong.ambient  = scene.getAmbient();
+    drawable.shading.use_texture    = scene.getUseTexture();
+    drawable.shading.phong.specular_exponent = scene.getSpecularExponant();
+
+    fond.shading.phong.specular = scene.getSpecular();
+    fond.shading.phong.diffuse = scene.getDiffuse();
+    fond.shading.phong.ambient = scene.getAmbient();
+    fond.shading.use_texture = scene.getUseTexture();
+    fond.shading.phong.specular_exponent = scene.getSpecularExponant();
+
     cgp::scene_environment_basic const& environment = scene.environment;
     scene.send_lights_to_GPU(fond.shader);
     cgp::draw(fond, environment);

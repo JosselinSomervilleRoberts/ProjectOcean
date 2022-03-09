@@ -12,13 +12,51 @@ void Ship::initialize() {
 	drawable.texture = opengl_load_texture_image("assets/ship.jpg");
 }
 
-void Ship::draw(cgp::scene_environment_basic environment)
+void Ship::draw(Scene& scene)
 {
+	drawable.shading.phong.specular = 0.02f; scene.getSpecular();
+	drawable.shading.phong.diffuse = scene.getDiffuse();
+	drawable.shading.phong.ambient = scene.getAmbient();
+	drawable.shading.use_texture = scene.getUseTexture();
+	drawable.shading.phong.specular_exponent = scene.getSpecularExponant();
+
 	drawable.transform.rotation = rotation;
 	drawable.transform.translation = translation;
 	drawable.transform.scaling = scaling;
-	//scene.send_lights_to_GPU(drawable.shader);
-	cgp::draw(drawable, environment);
+
+	cgp::scene_environment_basic const& environment = scene.environment;
+
+	if (drawable.number_triangles == 0) return;
+
+	// Setup shader
+	assert_cgp(drawable.shader != 0, "Try to draw mesh_drawable without shader [name:" + drawable.name + "]");
+	assert_cgp(drawable.texture != 0, "Try to draw mesh_drawable without texture [name:" + drawable.name + "]");
+	glUseProgram(drawable.shader); opengl_check;
+
+	// Send uniforms for this shader
+	opengl_uniform(drawable.shader, environment);
+	opengl_uniform(drawable.shader, drawable.shading);
+	opengl_uniform(drawable.shader, "model", drawable.model_matrix());
+
+	// Data
+	scene.send_lights_to_GPU(drawable.shader);
+
+	// Set texture
+	glActiveTexture(GL_TEXTURE0); opengl_check;
+	glBindTexture(GL_TEXTURE_2D, drawable.texture); opengl_check;
+	opengl_uniform(drawable.shader, "image_texture", 0);  opengl_check;
+
+	// Call draw function
+	assert_cgp(drawable.number_triangles > 0, "Try to draw mesh_drawable with 0 triangles [name:" + drawable.name + "]"); opengl_check;
+	glBindVertexArray(drawable.vao);   opengl_check;
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, drawable.vbo.at("index")); opengl_check;
+	glDrawElements(GL_TRIANGLES, GLsizei(drawable.number_triangles * 3), GL_UNSIGNED_INT, nullptr); opengl_check;
+
+	// Clean buffers
+	glBindVertexArray(0);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	//if (show_wireframe) draw_wireframe(drawable, environment);
 }
 
 void Ship::computeRefPoints() {
@@ -26,7 +64,7 @@ void Ship::computeRefPoints() {
 	movedRefPoints.resize(3 * N_triangles);
 
 	for (int i = 0; i < N_triangles; i++) {
-		refPoints[3 * i] = vec3(0, 0, 0);
+		refPoints[3 * i] = vec3(0, 0, -1.2f * scaling);
 		refPoints[3 * i + 1] = border(2 * PI / N_triangles * i);
 		refPoints[3 * i + 2] = border(2 * PI / N_triangles * (i + 1));
 	}
@@ -43,8 +81,10 @@ void Ship::update(Ocean& ocean, float time) {
 	}
 
 	float dt = time - last_t;
-	computeRotation(dt);
-	computeTranslation(dt);
+	if (dt > 0) {
+		computeRotation(dt);
+		computeTranslation(dt);
+	}
 	last_t = time;
 }
 

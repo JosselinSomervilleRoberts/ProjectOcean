@@ -10,7 +10,7 @@ public:
 
 	Ship();
 	void initialize();
-	void draw(cgp::scene_environment_basic environment);
+	void draw(Scene& scene);
 
 	void computeRefPoints();
 
@@ -32,8 +32,8 @@ public:
 	cgp::vec3 translation_p  = cgp::vec3(0.0f, 0.0f, 0.0f);
 	cgp::vec3 translation_pp = cgp::vec3(0.0f, 0.0f, 0.0f);
 	float last_t = 0;
-	float m = 100;
-	float K = 6;
+	float m = 20;
+	float K = 5;
 
 	// To show
 	float scaling = 4.0f;

@@ -27,6 +27,12 @@ public:
 
 	cgp::scene_environment_basic environment; // Standard environment controler
 
+	float getSpecular() { return specular; };
+	float getDiffuse()  { return diffuse;  };
+	float getAmbient()  { return ambient;  };
+	float getSpecularExponant() { return specular_exponent; };
+	bool getUseTexture() { return use_texture; };
+
 private:
 	// Drawing elements helpers
 	cgp::mesh_drawable global_frame;          // The standard global frame
@@ -39,11 +45,16 @@ private:
 	
 	// For simulation
 	cgp::timer_basic timer;
-	bool simulation_running = false;
+	bool simulation_running = true;
 
 	// Lights
 	std::vector<LightSourceDir> lights;
 	float light_intensity;
+	float specular = 0.4f;
+	float diffuse = 0.7f;
+	float ambient = 0.4f;
+	float specular_exponent = 64.0f;
+	bool use_texture = true;
 };
 
 
