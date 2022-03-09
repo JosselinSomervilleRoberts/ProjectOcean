@@ -5,7 +5,6 @@
 #include "structures.hpp"
 
 
-
 class Ocean {
 public:
 
@@ -34,9 +33,9 @@ public:
 	float wave_exponant;
 	int N_waves_desired;
 
-	// Geometry
+	// Geometry used for FFT
 	cgp::grid_2D<cgp::vec3> position;
-	cgp::grid_2D<cgp::vec3> normal; // Normally not used
+	cgp::grid_2D<cgp::vec3> normal;
 	cgp::buffer<cgp::uint3> triangle_connectivity;
 
 	// Drawable

@@ -21,19 +21,20 @@ uniform mat4 projection;
 
 struct Wave {
 	float amplitude;
-	float frequency;
-	vec2 direction;
+	float angular_velocity;
+	vec2 K;
+  vec2 dir;
 };
 
 
 struct PerlinNoise {
     bool used;
-	float amplitude;
+	  float amplitude;
     int octave;
-	float persistency;
-	float frequency;
-	float frequency_gain;
-	float dilatation_space;
+	  float persistency;
+	  float frequency;
+	  float frequency_gain;
+  	float dilatation_space;
     float dilatation_time;
 };
 
@@ -122,10 +123,10 @@ float snoise3(vec3 v){
 
 float noise_perlin(vec3 p, float amplitude, int octave, float persistency, float frequency, float frequency_gain, float dilatation_space, float dilatation_time)
 {
-	// dilatation
-	p.x *= dilatation_space;
-	p.y *= dilatation_space;
-	p.z *= dilatation_time;
+    // dilatation
+    p.x *= dilatation_space;
+    p.y *= dilatation_space;
+    p.z *= dilatation_time;
 
     float value = 0.0f;
     float a = 1.0f; // current magnitude
@@ -133,7 +134,7 @@ float noise_perlin(vec3 p, float amplitude, int octave, float persistency, float
     for(int k=0;k<octave;k++)
     {
         float n = snoise3(vec3(p.x*f, p.y*f, p.z*f));
-        value += a*(0.5f+0.5f*n);
+        value += a * (0.5f+0.5f*n);
         f *= frequency_gain;
         a *= persistency;
     }
@@ -143,8 +144,8 @@ float noise_perlin(vec3 p, float amplitude, int octave, float persistency, float
 // =================================================================== //
 
 
-float wave_arg(float time, float a, float f, vec2 dir, float u, float v) {
-    return f*time - (dir[0]*u + dir[1]*v);
+float wave_arg(float t, float a, float w, vec2 K, float u, float v) {
+    return w * t - (K[0]*u + K[1]*v);
 }
 
 vec3 compute_wave_pos(vec3 pos, float time)
@@ -152,14 +153,15 @@ vec3 compute_wave_pos(vec3 pos, float time)
     vec2 X = vec2(pos);
     float Z = pos[2];
 
-    for(int k=0; k<N_waves; k++){
+    for(int k=0; k < N_waves; k++){
         float a  = waves[k].amplitude;
-        float f  = waves[k].frequency;
-        vec2 dir = normalize(waves[k].direction);
+        float w  = waves[k].angular_velocity;
+        vec2 K = waves[k].K;
         float u = pos.x;
         float v = pos.y;
-        float arg = wave_arg(time, a, f, dir, u, v);
-        X += a * normalize(dir) * sin(arg);
+        float arg = wave_arg(time, a, w, K, u, v);
+
+        X += a * waves[k].dir * sin(arg);
         Z += a * cos(arg);
     }
     if (noise.used) Z += noise_perlin(vec3(X, time), noise.amplitude, noise.octave, noise.persistency, noise.frequency, noise.frequency_gain, noise.dilatation_space, noise.dilatation_time);
@@ -193,13 +195,11 @@ void main()
     vec3 pos = compute_wave_pos(position, t);
     vec3 norm = compute_wave_norm(position, t);
 
-	fragment.position = vec3(model * vec4(pos,1.0));
-	fragment.normal   = vec3(model * vec4(norm  ,0.0));
-	fragment.color = color;
-	fragment.uv = uv;
-	fragment.eye = vec3(inverse(view)*vec4(0,0,0,1.0));
+    fragment.position = vec3(model * vec4(pos,1.0));
+    fragment.normal   = vec3(model * vec4(norm  ,0.0));
+    fragment.color = color;
+    fragment.uv = uv;
+    fragment.eye = vec3(inverse(view)*vec4(0,0,0,1.0));
 
-	gl_Position = projection * view * model * vec4(pos, 1.0);
+    gl_Position = projection * view * model * vec4(pos, 1.0);
 }
-
-

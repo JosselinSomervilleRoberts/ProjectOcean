@@ -64,7 +64,6 @@ void scene_structure::display_gui()
 	ImGui::Text("WIND SETTINGS");
 	ImGui::SliderFloat("Magnitude", &ocean.wind.magnitude, 0.0f, 5.0f);
 	
-
 	ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing();
 	ImGui::Text("PERLIN NOISE");
 	ImGui::Checkbox("Active", &ocean.perlin.used);

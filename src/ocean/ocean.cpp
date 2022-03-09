@@ -6,6 +6,7 @@ using namespace cgp;
 
 Ocean::Ocean() {}
 
+/* Simulation by sum of random waves */
 
 void Ocean::initialize(int N_samples_edge_arg)
 {
@@ -35,16 +36,16 @@ void Ocean::initialize(int N_samples_edge_arg)
     // Noise
     perlin.used = true;
     perlin.amplitude = 1.8f;
-    perlin.octave = 2;
-    perlin.persistency = 0.2;
+    perlin.octave = 7;
+    perlin.persistency = 0.4;
     perlin.frequency = 1.0f;
-    perlin.frequency_gain = 2;
+    perlin.frequency_gain = 2.2f;
     perlin.dilatation_space = 0.1f;
     perlin.dilatation_time = 1.0f;
 
     // Waves
     wave_exponant = 7.0f;
-    N_waves_desired = 10;
+    N_waves_desired = 20;
 
     // Wind
     wind.magnitude = 3.0f;
@@ -62,19 +63,41 @@ void Ocean::update_normal()
     normal_per_vertex(position.data, triangle_connectivity, normal.data);
 }
 
-
-
 void Ocean::update()
 {    
     update_waves();
-    //drawable.update_position(position.data);
-    //drawable.update_normal(normal.data);
 }
 
+void Ocean::add_random_waves(size_t N) {
+    for (int i = 0; i < N; i++) {
+        wave_parameters wave;
+        wave.angular_velocity = 2 * PI * ((double)rand() / (RAND_MAX));
+        float angle = PI * (-0.5f + ((double)rand() / (RAND_MAX)));
+        cgp::vec2 dir;
+        dir.x = std::cos(angle) * wind.direction.x + std::sin(angle) * wind.direction.y;
+        dir.y = std::cos(angle) * wind.direction.y - std::sin(angle) * wind.direction.x;
+        wave.amplitude = ((double)rand() / (RAND_MAX));
+        wave.K = 0.3f * wave.angular_velocity * wave.angular_velocity /9.8f * dir;
+        wave.dir = normalize(wave.K);
+
+        waves.push_back(wave);
+    }
+}
+
+void Ocean::update_waves() {
+    if (waves.size() == N_waves_desired) return;
+    else if (waves.size() < N_waves_desired) {
+        add_random_waves(N_waves_desired - waves.size());
+    }
+    else {
+        waves.resize(N_waves_desired);
+    }
+}
+
+/* Functions to generate GPU */
 
 void Ocean::draw(cgp::scene_environment_basic const& environment, float t)
 {
-	auto scene = environment;
 	if (drawable.number_triangles == 0) return;
 
 	// Setup shader
@@ -111,33 +134,6 @@ void Ocean::draw(cgp::scene_environment_basic const& environment, float t)
     if(show_wireframe) draw_wireframe(drawable, environment);
 }
 
-
-
-void Ocean::add_random_waves(size_t N) {
-    for (int i = 0; i < N; i++) {
-        wave_parameters wave;
-        wave.frequency = PI * (1 + 3 * ((double)rand() / (RAND_MAX)));
-        float angle = PI * (0.5f + ((double)rand() / (RAND_MAX)));
-        cgp::vec2 dir;
-        dir.x = std::cos(angle) * wind.direction.x + std::sin(angle) * wind.direction.y;
-        dir.y = std::cos(angle) * wind.direction.y - std::sin(angle) * wind.direction.x;
-        wave.direction = dir;
-        wave.amplitude = ((double)rand() / (RAND_MAX));
-
-        waves.push_back(wave);
-    }
-}
-
-void Ocean::update_waves() {
-    if (waves.size() == N_waves_desired) return;
-    else if (waves.size() < N_waves_desired) {
-        add_random_waves(N_waves_desired - waves.size());
-    }
-    else {
-        waves.resize(N_waves_desired);
-    }
-}
-
 void opengl_uniform(GLuint shader, std::string name, vec2 const& value)
 {
     assert_cgp(shader != 0, "Try to send uniform " + name + " to unspecified shader");
@@ -151,10 +147,11 @@ void Ocean::send_waves_to_GPU() {
     opengl_uniform(drawable.shader, "N_waves", N_waves);
     
     for (int i = 0; i < N_waves; i++) {
-        float amplitude = waves[i].amplitude * wind.magnitude * std::pow(std::fabs(cgp::dot(waves[i].direction, wind.direction)), wave_exponant) / (float)(std::sqrt(waves.size()));
+        float amplitude = waves[i].amplitude * wind.magnitude * std::pow(std::fabs(cgp::dot(normalize(waves[i].K), wind.direction)), wave_exponant) / (float)(std::sqrt(waves.size()));
         opengl_uniform(drawable.shader, "waves[" + str(i) + "].amplitude", amplitude);
-        opengl_uniform(drawable.shader, "waves[" + str(i) + "].frequency", waves[i].frequency);
-        opengl_uniform(drawable.shader, std::string("waves[" + str(i) + "].direction"), waves[i].direction);
+        opengl_uniform(drawable.shader, "waves[" + str(i) + "].angular_velocity", waves[i].angular_velocity);
+        opengl_uniform(drawable.shader, std::string("waves[" + str(i) + "].K"), waves[i].K);
+        opengl_uniform(drawable.shader, std::string("waves[" + str(i) + "].dir"), waves[i].dir);
     }
 }
 
