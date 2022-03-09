@@ -38,12 +38,15 @@ void Ship::update(Ocean& ocean, float time) {
 	for (int i = 0; i < 3 * N_triangles; i++) {
 		movedRefPoints[i] = ocean.getVertexPos(refPoints[i], time);
 	}
-	computeRotation();
-	computeTranslation(time);
+
+	float dt = time - last_t;
+	computeRotation(dt);
+	computeTranslation(dt);
+	last_t = time;
 }
 
 
-void Ship::computeRotation() {
+void Ship::computeRotation(float dt) {
 	cgp::quaternion q = cgp::quaternion(0,0,0,0);
 
 	for (int i = 0; i < 1; i++) {
@@ -59,10 +62,20 @@ void Ship::computeRotation() {
 	}
 
 	q /= N_triangles;
+
+	// Compute the speed metrics
+	cgp::quaternion last_q = rotation.quat();
+
+	// Compute the associated force
+	cgp::quaternion q_p = (q - last_q) / dt;
+
+	q_p /= std::max(1.0f, pow(m, 0.7f) * sqrt(1 + K) / 10.0f);
+	q = last_q + q_p * dt;
+
 	rotation = rotation_transform::from_quaternion(q);
 }
 
-void Ship::computeTranslation(float time) {
+void Ship::computeTranslation(float dt) {
 
 	// Compute the translation based on the wave movement
 	cgp::vec3 trans = vec3(0, 0, 0);
@@ -74,26 +87,25 @@ void Ship::computeTranslation(float time) {
 	trans /= N_triangles;
 
 	// Compute the speed metrics
-	float dt = time - last_t;
-	cgp::vec3 sp = (trans - translation) / dt;
-	cgp::vec3 acc = (sp - speed) / dt;
+	cgp::vec3 trans_p  = (trans - translation) / dt;
+	cgp::vec3 trans_pp = (trans_p - translation_p) / dt;
 
 	// Compute the associated force
-	cgp::vec3 force = acc * m;
+	cgp::vec3 force = trans_pp * m;
 
 	// Compute the friction force
-	cgp::vec3 forceFriction = -K * speed;
+	cgp::vec3 forceFriction = -K * translation_p;
 
 	// Compute the associated accel, speed, etc..
-	accel = (force + forceFriction) / m;
-	cgp::vec3 new_speed = speed + accel * dt;
-	if (dot(speed, new_speed) < 0) // To prevent divergence
+	translation_pp = (force + forceFriction) / m;
+	cgp::vec3 new_speed = translation_p + translation_pp * dt;
+	new_speed /= m * sqrt(1 + K);
+	if (dot(translation_p, new_speed) < 0) // To prevent divergence
 		new_speed = vec3(0, 0, 0);// -= dot(new_speed, speed) * speed / (pow(norm(speed), 2) * norm(new_speed));
 	translation += new_speed * dt;
 
 	// Update time
-	last_t = time;
-	speed = new_speed;
+	translation_p = new_speed;
 
 }
 

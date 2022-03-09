@@ -78,8 +78,8 @@ void scene_structure::display_gui()
 	ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing();
 	ImGui::Text("SHIP SETTINGS");
 	ImGui::SliderInt("Triangle Number", &ship.N_triangles_desired, 3, 50);
-	ImGui::SliderFloat("Mass", &ship.m, 1.0f, 1000.0f);
-	ImGui::SliderFloat("Friction", &ship.K, 0.0f, 1000.0f);
+	ImGui::SliderFloat("Mass", &ship.m, 1.0f, 300.0f);
+	ImGui::SliderFloat("Friction", &ship.K, 0.0f, 100.0f);
 
 	ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing();
 	ImGui::Text("RENDERING");

@@ -13,8 +13,8 @@ public:
 	void computeRefPoints();
 
 	void update(Ocean& ocean, float time);
-	void computeRotation();
-	void computeTranslation(float time);
+	void computeRotation(float dt);
+	void computeTranslation(float dt);
 
 	cgp::vec3 border(float u);
 
@@ -27,8 +27,8 @@ public:
 	// To move
 	cgp::rotation_transform rotation;
 	cgp::vec3 translation;
-	cgp::vec3  speed = cgp::vec3(0.0f, 0.0f, 0.0f);
-	cgp::vec3  accel = cgp::vec3(0.0f, 0.0f, 0.0f);
+	cgp::vec3 translation_p  = cgp::vec3(0.0f, 0.0f, 0.0f);
+	cgp::vec3 translation_pp = cgp::vec3(0.0f, 0.0f, 0.0f);
 	float last_t = 0;
 	float m = 10;
 	float K = 5;
