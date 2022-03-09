@@ -112,10 +112,10 @@ void Ship::computeRotation(float dt) {
 	// Compute the associated force
 	cgp::quaternion q_p = (q - last_q) / dt;
 
-	q_p /= std::max(1.0f, pow(m, 0.7f) * sqrt(1 + K) / 10.0f);
+	q_p /= std::max(1.0f, m * sqrt(1 + K));
 	q = last_q + q_p * dt;
 
-	rotation = rotation_transform::from_quaternion(q);
+	rotation = rotation_transform::from_quaternion(normalize(q));
 }
 
 void Ship::computeTranslation(float dt) {
