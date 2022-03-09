@@ -32,7 +32,7 @@ struct LightSourceDir {
 uniform LightSourceDir lightsourcesDir[10];
 uniform int nb_lightsourcesDir;
 
-uniform float ecume_exposant = 0.3f;
+uniform float ecume_exponent = 0.3f;
 uniform float ecume_threshold = 0.4f;
 
 
@@ -119,12 +119,12 @@ void main()
 
 
 	vec3 color_shading = (Ka * color_object) + pbr_color;
-	float aaa = 0.6f;
+	float aaa = 0.5f;
 	FragColor = vec4(color_shading, alpha * aaa * color_image_texture.a);
 	
 
 	if (ecume > ecume_threshold) {
-		float coef = pow((ecume - ecume_threshold) / (1.0f - ecume_threshold), ecume_exposant);
+		float coef = pow((ecume - ecume_threshold) / (1.0f - ecume_threshold), ecume_exponent);
 		vec3 v = color_shading * (1.0f - coef) + coef * vec3(1,1,1);
 		FragColor = vec4(v, ecume);
 	}

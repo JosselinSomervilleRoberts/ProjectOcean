@@ -195,12 +195,12 @@ vec3 compute_wave_norm(vec3 pos, float time)
 
 float dN(float time, float u, float v, float z) {
     float EPSILON = 0.01f;
-    int N_dir = 10;
+    int N_dir = 2;
     float dN = 0;
 
     for(int i=0; i<N_dir; i++) {
-        vec3 v1 = compute_wave_norm(vec3(u + EPSILON * cos(2*PI*i/N_dir), v + EPSILON * sin(2*PI*i/N_dir), z), time);
-        vec3 v2 = compute_wave_norm(vec3(u - EPSILON * cos(2*PI*i/N_dir), v - EPSILON * sin(2*PI*i/N_dir), z), time);
+        vec3 v1 = compute_wave_norm(vec3(u + EPSILON * cos(PI*i/N_dir), v + EPSILON * sin(PI*i/N_dir), z), time);
+        vec3 v2 = compute_wave_norm(vec3(u - EPSILON * cos(PI*i/N_dir), v - EPSILON * sin(PI*i/N_dir), z), time);
         vec3 dN_temp =  (v1 - v2) / (2.0f * EPSILON);
         dN = max(dN, length(dN_temp));
     }

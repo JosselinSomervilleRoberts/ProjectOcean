@@ -19,10 +19,23 @@ void Ocean::initialize(int N_samples_edge_arg)
     normal.resize(N_samples_edge_arg, N_samples_edge_arg);
 
     float const z0 = 1.0f;
-    mesh const ocean_mesh = mesh_primitive_grid({ -50,-50,z0 }, { 50,-50,z0 }, { 50,50,z0 }, { -50,50,z0 }, N_samples_edge_arg, N_samples_edge_arg).fill_empty_field();
+    float const dz = 10;
+    float const size = 100;
+    mesh const ocean_mesh = mesh_primitive_grid({ -size,-size,z0 }, { size,-size,z0 }, { size,size,z0 }, { -size,size,z0 }, N_samples_edge_arg, N_samples_edge_arg).fill_empty_field();
     position = grid_2D<vec3>::from_buffer(ocean_mesh.position, N_samples_edge_arg, N_samples_edge_arg);
     normal = grid_2D<vec3>::from_buffer(ocean_mesh.normal, N_samples_edge_arg, N_samples_edge_arg);
     triangle_connectivity = ocean_mesh.connectivity;
+
+    // Fond
+    mesh const fond_mesh = mesh_primitive_grid({ -size,-size,z0-dz }, { size,-size,z0-dz }, { size,size,z0-dz }, { -size,size,z0-dz }, 2, 2).fill_empty_field();
+    fond.clear();
+    fond.initialize(fond_mesh, "fond");
+    fond.texture = opengl_load_texture_image("assets/ocean.jpg");
+    fond.shading.use_texture = true;
+    fond.shading.phong.specular = 0.3f;
+    fond.shading.phong.diffuse = 0.5f;
+    fond.shading.phong.ambient = 0.1f;
+    fond.shader = opengl_load_shader("shaders/ship/vert.glsl", "shaders/ship/frag.glsl");
 
     // Drawable
     drawable.clear();
@@ -98,6 +111,8 @@ void Ocean::update_waves() {
 
 void Ocean::draw(cgp::scene_environment_basic const& environment, float t)
 {
+    cgp::draw(fond, environment);
+
 	if (drawable.number_triangles == 0) return;
 
 	// Setup shader
