@@ -76,6 +76,12 @@ void scene_structure::display_gui()
 	ImGui::SliderFloat("Dilatation Time", &ocean.perlin.dilatation_time, 0.1f, 2.0f);
 
 	ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing();
+	ImGui::Text("SHIP SETTINGS");
+	ImGui::SliderInt("Triangle Number", &ship.N_triangles_desired, 3, 50);
+	ImGui::SliderFloat("Mass", &ship.m, 1.0f, 1000.0f);
+	ImGui::SliderFloat("Friction", &ship.K, 0.0f, 1000.0f);
+
+	ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing();
 	ImGui::Text("RENDERING");
 	ImGui::SliderFloat("Ambient", &ocean.drawable.shading.phong.ambient, 0.0f, 1.0f);
 	ImGui::SliderFloat("Diffuse", &ocean.drawable.shading.phong.diffuse, 0.0f, 1.0f);
