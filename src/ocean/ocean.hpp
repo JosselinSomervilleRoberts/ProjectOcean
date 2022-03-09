@@ -46,4 +46,8 @@ public:
 	// Ecume
 	float ecume_threshold = 0.5f;
 	float ecume_exponent = 0.5f;
+
+	// Environment map
+	GLuint environment_map_texture = 0;
+	float env_mapping_coeff = 0.5f;
 };

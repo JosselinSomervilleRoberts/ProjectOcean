@@ -136,11 +136,18 @@ void Ocean::draw(Scene& scene, float t)
     send_waves_to_GPU();
     send_noise_to_GPU();
     scene.send_lights_to_GPU(drawable.shader);
+    opengl_uniform(drawable.shader, "env_mapping_coeff", env_mapping_coeff);
 
 	// Set texture
 	glActiveTexture(GL_TEXTURE0); opengl_check;
 	glBindTexture(GL_TEXTURE_2D, drawable.texture); opengl_check;
 	opengl_uniform(drawable.shader, "image_texture", 0);  opengl_check;
+
+    // Set texture as a cubemap (different from the 2D texture using in the "standard" draw call) as a second texture
+    glActiveTexture(GL_TEXTURE1); opengl_check;
+    glBindTexture(GL_TEXTURE_CUBE_MAP, environment_map_texture); opengl_check;
+    opengl_uniform(drawable.shader, "environment_image_texture", 1, false);  opengl_check;
+    // Note: The value 'expected' is set to false so that this draw() call remains valid even if the shader doesn't expect an environment_image_texture parameter
 
 	// Call draw function
 	assert_cgp(drawable.number_triangles > 0, "Try to draw mesh_drawable with 0 triangles [name:" + drawable.name + "]"); opengl_check;

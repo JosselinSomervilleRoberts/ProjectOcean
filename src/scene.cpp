@@ -40,11 +40,12 @@ void Scene::initialize()
 	ocean.initialize(gui.N_sample_edge);
 	skybox.initialize("assets/skybox/");
 	ship.initialize();
+	ocean.environment_map_texture = skybox.texture;
 
 	// Lights
-	lights.push_back({ cgp::vec3(0, 0, -1), 2.0f, cgp::vec3(1.0f, 1.0f, 1.0f) });
-	//lights.push_back({ normalize(vec3(2,4,-1)), 3.0f, vec3(1.0f,0.0f,0.0f) });
-	//lights.push_back({ normalize(vec3(-2,4,-1)), 3.0f, vec3(0.0f,1.0f,0.0f) });
+	lights.push_back({ cgp::normalize(cgp::vec3(0.6, -0.7, -0.5)), 2.0f, cgp::vec3(1.0f, 1.0f, 0.5f) });
+	lights.push_back({ cgp::normalize(cgp::vec3(0.6, -0.3, -0.8)), 2.0f, cgp::vec3(1.0f, 0.6f, 0.1f) });
+	lights.push_back({ cgp::normalize(cgp::vec3(0.3, -0.6, -0.8)), 2.0f, cgp::vec3(1.0f, 0.4f, 0.05f) });
 	light_intensity = 1.0f;
 }
 
@@ -81,9 +82,10 @@ void Scene::display_gui()
 	ImGui::SliderInt("Triangle Number", &ship.N_triangles_desired, 3, 50);
 	ImGui::SliderFloat("Mass", &ship.m, 1.0f, 100.0f);
 	ImGui::SliderFloat("Friction", &ship.K, 0.0f, 50.0f);
-
+	
 	ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing();
 	ImGui::Text("RENDERING");
+	ImGui::SliderFloat("Environment Mapping", &ocean.env_mapping_coeff, 0.0f, 1.0f);
 	ImGui::SliderFloat("Ecume Threshold", &ocean.ecume_threshold, 0.0f, 1.0f);
 	ImGui::SliderFloat("Ecume Exponent", &ocean.ecume_exponent, 0.0f, 1.0f);
 	ImGui::SliderFloat("Ambient", &ambient, 0.0f, 1.0f);
