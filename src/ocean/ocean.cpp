@@ -66,8 +66,8 @@ void Ocean::initialize(int N_samples_edge_arg)
 
     // Lights
     lights.push_back({ cgp::vec3(0, 0, -1), 2.0f, cgp::vec3(1.0f, 1.0f, 1.0f) });
-    lights.push_back({ normalize(vec3(2,4,-1)), 3.0f, vec3(1.0f,0.0f,0.0f) });
-    lights.push_back({ normalize(vec3(-2,4,-1)), 3.0f, vec3(0.0f,1.0f,0.0f) });
+    //lights.push_back({ normalize(vec3(2,4,-1)), 3.0f, vec3(1.0f,0.0f,0.0f) });
+    //lights.push_back({ normalize(vec3(-2,4,-1)), 3.0f, vec3(0.0f,1.0f,0.0f) });
     light_intensity = 1.0f;
 }
 

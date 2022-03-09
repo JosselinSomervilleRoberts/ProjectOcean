@@ -109,23 +109,25 @@ void main()
 
 	// PBR Shading
 	vec3 pbr_color = vec3(0);
+	vec3 albedo = color_object;
+	float roughness = 0.8f;
+	float metallicness = 0.5f;
+
+	if (ecume > ecume_threshold) {
+		float coef = pow((ecume - ecume_threshold) / (1.0f - ecume_threshold), ecume_exponent);
+		vec3 v = albedo * (1.0f - coef) + coef * vec3(1,1,1);
+		albedo = v;
+	}
+
 	for(int i=0; i<nb_lightsourcesDir; i++) {
 		vec3 lightDirection = normalize(vec3(model * vec4(lightsourcesDir[i].direction, 1.0)));
-		vec3 albedo = color_object;
-		float roughness = 0.8f;
-		float metallicness = 0.5f;
 		pbr_color += get_r(fragment.position, N, -lightDirection, lightsourcesDir[i].intensity, lightsourcesDir[i].color, albedo, roughness, metallicness, Kd, Ks, specular_exp);
 	}
 
 
 	vec3 color_shading = (Ka * color_object) + pbr_color;
 	float aaa = 0.5f;
-	FragColor = vec4(color_shading, alpha * aaa * color_image_texture.a);
-	
-
-	if (ecume > ecume_threshold) {
-		float coef = pow((ecume - ecume_threshold) / (1.0f - ecume_threshold), ecume_exponent);
-		vec3 v = color_shading * (1.0f - coef) + coef * vec3(1,1,1);
-		FragColor = vec4(v, ecume);
-	}
+	float a = alpha * aaa * color_image_texture.a;
+	a = max(a, ecume);
+	FragColor = vec4(color_shading, a);
 }

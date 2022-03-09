@@ -208,9 +208,10 @@ float dN(float time, float u, float v, float z) {
     return dN;
 }
 
-float compute_ecume(float time, vec3 pos, vec3 norm) {
-    float dN_value = dN(time, pos.x, pos.y, pos.z);
-    return min(1.0f, max(0, (2 - dN_value)) * min(1, compute_wave_pos(pos, time).z) * (1.2f - norm.z));
+float compute_ecume(float time, vec3 wave_pos, vec3 uv_pos, vec3 norm) {
+    float dN_value = dN(time, uv_pos.x, uv_pos.y, uv_pos.z);
+    if (wave_pos.z > 3.65f) return min(1.0f, 0.7f + wave_pos.z - 3.65f);
+    return min(1.0f, max(0, (2 - dN_value)) * min(1, wave_pos.z - 2.0f) * (1.2f - norm.z));
 }
 
 
@@ -226,5 +227,5 @@ void main()
     fragment.eye = vec3(inverse(view)*vec4(0,0,0,1.0));
 
     gl_Position = projection * view * model * vec4(pos, 1.0);
-    ecume = compute_ecume(t, position, norm);
+    ecume = compute_ecume(t, pos, position, norm);
 }
