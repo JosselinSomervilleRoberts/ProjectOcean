@@ -43,4 +43,8 @@ public:
 	bool show_wireframe = false;
 	std::vector<LightSourceDir> lights;
 	float light_intensity;
+
+	// Ecume
+	float ecume_threshold = 0.4f;
+	float ecume_exponent = 0.3f;
 };

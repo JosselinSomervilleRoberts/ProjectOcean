@@ -83,6 +83,8 @@ void scene_structure::display_gui()
 
 	ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing();
 	ImGui::Text("RENDERING");
+	ImGui::SliderFloat("Ecume Threshold", &ocean.ecume_threshold, 0.0f, 1.0f);
+	ImGui::SliderFloat("Ecume Exponent", &ocean.ecume_exponent, 0.0f, 1.0f);
 	ImGui::SliderFloat("Ambient", &ocean.drawable.shading.phong.ambient, 0.0f, 1.0f);
 	ImGui::SliderFloat("Diffuse", &ocean.drawable.shading.phong.diffuse, 0.0f, 1.0f);
 	ImGui::SliderFloat("Specular", &ocean.drawable.shading.phong.specular, 0.0f, 1.0f);

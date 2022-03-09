@@ -1,4 +1,5 @@
 #version 330 core
+#define PI 3.14159f
 
 layout (location = 0) in vec3 position;
 layout (location = 1) in vec3 normal;
@@ -13,6 +14,8 @@ out struct fragment_data
     vec2 uv;
 	vec3 eye;
 } fragment;
+
+out float ecume;
 
 uniform mat4 model;
 uniform mat4 view;
@@ -190,6 +193,27 @@ vec3 compute_wave_norm(vec3 pos, float time)
     return normalize(cross(grad_u, grad_v));
 }
 
+float dN(float time, float u, float v, float z) {
+    float EPSILON = 0.01f;
+    int N_dir = 10;
+    float dN = 0;
+
+    for(int i=0; i<N_dir; i++) {
+        vec3 v1 = compute_wave_norm(vec3(u + EPSILON * cos(2*PI*i/N_dir), v + EPSILON * sin(2*PI*i/N_dir), z), time);
+        vec3 v2 = compute_wave_norm(vec3(u - EPSILON * cos(2*PI*i/N_dir), v - EPSILON * sin(2*PI*i/N_dir), z), time);
+        vec3 dN_temp =  (v1 - v2) / (2.0f * EPSILON);
+        dN = max(dN, length(dN_temp));
+    }
+
+    return dN;
+}
+
+float compute_ecume(float time, vec3 pos, vec3 norm) {
+    float dN_value = dN(time, pos.x, pos.y, pos.z);
+    return min(1.0f, max(0, (2 - dN_value)) * min(1, compute_wave_pos(pos, time).z) * (1.2f - norm.z));
+}
+
+
 void main()
 {
     vec3 pos = compute_wave_pos(position, t);
@@ -202,4 +226,5 @@ void main()
     fragment.eye = vec3(inverse(view)*vec4(0,0,0,1.0));
 
     gl_Position = projection * view * model * vec4(pos, 1.0);
+    ecume = compute_ecume(t, position, norm);
 }

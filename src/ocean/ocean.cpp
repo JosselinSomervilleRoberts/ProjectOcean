@@ -153,6 +153,9 @@ void Ocean::send_waves_to_GPU() {
         opengl_uniform(drawable.shader, std::string("waves[" + str(i) + "].K"), waves[i].K);
         opengl_uniform(drawable.shader, std::string("waves[" + str(i) + "].dir"), waves[i].dir);
     }
+
+    opengl_uniform(drawable.shader, "ecume_threshold", ecume_threshold);
+    opengl_uniform(drawable.shader, "ecume_exponent", ecume_exponent);
 }
 
 void Ocean::send_noise_to_GPU() {

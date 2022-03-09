@@ -10,6 +10,8 @@ in struct fragment_data
 	vec3 eye;
 } fragment;
 
+in float ecume;
+
 layout(location=0) out vec4 FragColor;
 uniform mat4 model;
 uniform mat4 view;
@@ -29,6 +31,9 @@ struct LightSourceDir {
 
 uniform LightSourceDir lightsourcesDir[10];
 uniform int nb_lightsourcesDir;
+
+uniform float ecume_exposant = 0.3f;
+uniform float ecume_threshold = 0.4f;
 
 
 uniform vec3 color = vec3(1.0, 1.0, 1.0); // Unifor color of the object
@@ -116,4 +121,11 @@ void main()
 	vec3 color_shading = (Ka * color_object) + pbr_color;
 	float aaa = 0.6f;
 	FragColor = vec4(color_shading, alpha * aaa * color_image_texture.a);
+	
+
+	if (ecume > ecume_threshold) {
+		float coef = pow((ecume - ecume_threshold) / (1.0f - ecume_threshold), ecume_exposant);
+		vec3 v = color_shading * (1.0f - coef) + coef * vec3(1,1,1);
+		FragColor = vec4(v, ecume);
+	}
 }
