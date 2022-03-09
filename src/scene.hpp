@@ -2,6 +2,7 @@
 
 #include "cgp/cgp.hpp"
 #include "ocean/ocean.hpp"
+#include "ship/ship.hpp"
 
 
 // The element of the GUI that are not already stored in other structures
@@ -34,6 +35,7 @@ struct scene_structure {
 	cgp::grid_2D<cgp::vec3> original_position; // Extra storage of the original position of the mesh
 
 
+	Ship ship;
 	Ocean ocean;                     // The values of the position, velocity, forces, etc, stored as a 2D grid
 	cgp::skybox_drawable skybox;
 	// Helper variables

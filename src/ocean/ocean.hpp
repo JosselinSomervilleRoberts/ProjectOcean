@@ -1,35 +1,10 @@
 #pragma once
 
 #include "cgp/cgp.hpp"
+#include "wave.hpp"
+#include "structures.hpp"
 
 
-struct wave_parameters {
-	float amplitude;
-	float frequency;
-	cgp::vec2 direction;
-};
-
-struct perlin_noise_parameters {
-	bool used;
-	float amplitude;
-	int octave;
-	float persistency;
-	float frequency;
-	float frequency_gain;
-	float dilatation_space;
-	float dilatation_time;
-};
-
-struct wind_parameters {
-	float magnitude = 0.0f;
-	cgp::vec2 direction = { 0,-1};
-};
-
-struct LightSourceDir {
-	cgp::vec3 direction;
-	float intensity;
-	cgp::vec3 color;
-};
 
 class Ocean {
 public:
@@ -47,6 +22,9 @@ public:
 	void send_waves_to_GPU();
 	void send_noise_to_GPU();
 	void send_lights_to_GPU();
+
+	// Shader functions translated to C++
+	cgp::vec3 getVertexPos(cgp::vec3 position, float time);
 
 
 	// To generate

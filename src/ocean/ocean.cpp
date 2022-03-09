@@ -180,3 +180,8 @@ void Ocean::send_lights_to_GPU() {
         opengl_uniform(drawable.shader, "lightsourcesDir[" + str(i) + "].color", lights[i].color);
     }
 }
+
+
+cgp::vec3 Ocean::getVertexPos(cgp::vec3 position, float time) {
+    return compute_wave_pos(position, time, waves.size(), waves, perlin);
+}

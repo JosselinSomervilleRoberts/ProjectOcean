@@ -13,8 +13,15 @@ void scene_structure::display()
 
 	// Display the ocean
 	draw(skybox, environment);
+
 	ocean.update();
+	ship.update(ocean, timer.t);
+
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	ship.draw(environment);
 	ocean.draw(environment, timer.t);
+	glDisable(GL_BLEND);
 }
 
 
@@ -36,6 +43,8 @@ void scene_structure::initialize()
 	ocean_texture = opengl_load_texture_image("assets/ocean.jpg");
 	initialize_ocean(gui.N_sample_edge);
 	skybox.initialize("assets/skybox/");         // indicate a path where to load the 6 texture images
+
+	ship.initialize();
 }
 
 void scene_structure::display_gui()

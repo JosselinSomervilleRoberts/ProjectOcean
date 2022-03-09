@@ -119,5 +119,6 @@ void main()
 
 
 	vec3 color_shading = (Ka * color_object) + pbr_color;
-	FragColor = vec4(color_shading, alpha * color_image_texture.a);
+	float aaa = 0.6f;
+	FragColor = vec4(color_shading, alpha * aaa * color_image_texture.a);
 }
