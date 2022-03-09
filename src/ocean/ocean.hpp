@@ -1,7 +1,7 @@
 #pragma once
 
 #include "cgp/cgp.hpp"
-#include "wave.hpp"
+#include "../wave.hpp"
 #include "structures.hpp"
 
 class Scene;

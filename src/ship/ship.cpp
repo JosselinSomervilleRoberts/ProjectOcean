@@ -1,5 +1,5 @@
-#include "Ship.hpp"
-#include "scene.hpp"
+#include "ship.hpp"
+#include "../scene.hpp"
 
 using namespace cgp;
 #define PI 3.14159f

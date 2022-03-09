@@ -1,7 +1,7 @@
 #pragma once
 
 #include "cgp/cgp.hpp"
-#include "ocean/ocean.hpp"
+#include "../ocean/ocean.hpp"
 
 class Scene;
 
