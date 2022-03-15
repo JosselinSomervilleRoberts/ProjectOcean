@@ -18,6 +18,8 @@ uniform mat4 view;
 uniform mat4 projection;
 
 uniform sampler2D image_texture;
+uniform samplerCube environment_image_texture;
+uniform float env_mapping_coeff = 0.5f;
 
 #define PI 3.1415
 
@@ -105,7 +107,12 @@ void main()
 	if(use_texture==false) {
 		color_image_texture=vec4(1.0,1.0,1.0,1.0);
 	}
-	vec3 color_object  = fragment.color * color * color_image_texture.rgb;
+
+	// Environment mapping
+	vec3 V = normalize(fragment.eye-fragment.position);
+	vec3 R_skybox = reflect(-V, N);
+	vec4 color_environment_image_texture = texture(environment_image_texture,R_skybox);
+	vec3 color_object  = env_mapping_coeff * color_environment_image_texture.rgb + (1.0f - env_mapping_coeff) * fragment.color * color * color_image_texture.rgb;// * color_environment_image_texture.rgb;
 
 	// PBR Shading
 	vec3 pbr_color = vec3(0);
@@ -126,8 +133,11 @@ void main()
 
 
 	vec3 color_shading = (Ka * color_object) + pbr_color;
-	float aaa = 0.5f;
+	float aaa = 0.6f;
 	float a = alpha * aaa * color_image_texture.a;
 	a = max(a, ecume);
 	FragColor = vec4(color_shading, a);
+	FragColor = vec4(ecume, ecume, ecume, 1);
+
+	//if((fragment.position.x > 0)) FragColor = vec4(1,0,0,1);
 }

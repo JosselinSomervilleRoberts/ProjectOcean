@@ -28,7 +28,8 @@ void Ocean::initialize(int N_samples_edge_arg)
     triangle_connectivity = ocean_mesh.connectivity;
 
     // Fond
-    mesh const fond_mesh = mesh_primitive_grid({ -size,-size,z0-dz }, { size,-size,z0-dz }, { size,size,z0-dz }, { -size,size,z0-dz }, 2, 2).fill_empty_field();
+    float EPSILON = 0.001f;
+    mesh const fond_mesh = mesh_primitive_grid({ -size- EPSILON,-size- EPSILON,z0-dz }, { size+EPSILON,-size- EPSILON,z0-dz }, { size+ EPSILON,size+ EPSILON,z0-dz }, { -size- EPSILON,size+ EPSILON,z0-dz }, N_samples_edge_arg, N_samples_edge_arg).fill_empty_field();
     fond.clear();
     fond.initialize(fond_mesh, "fond");
     fond.texture = opengl_load_texture_image("assets/ocean.jpg");
@@ -36,7 +37,7 @@ void Ocean::initialize(int N_samples_edge_arg)
     fond.shading.phong.specular = 0.3f;
     fond.shading.phong.diffuse = 0.5f;
     fond.shading.phong.ambient = 0.1f;
-    fond.shader = opengl_load_shader("shaders/ship/vert.glsl", "shaders/ship/frag.glsl");
+    fond.shader = opengl_load_shader("shaders/fond/vert.glsl", "shaders/fond/frag.glsl");
 
     // Drawable
     drawable.clear();
@@ -60,7 +61,7 @@ void Ocean::initialize(int N_samples_edge_arg)
 
     // Wind
     wind.magnitude = 5.0f;
-    wind.direction = cgp::vec2(0.f, 1.f);
+    wind.direction = cgp::vec2(1.f, 0.f);
 }
 
 void Ocean::update_normal()
