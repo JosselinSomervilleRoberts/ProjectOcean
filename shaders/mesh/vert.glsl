@@ -212,9 +212,48 @@ float max_dN(float time, float u, float v, float z) {
     return abs(dx) * sqrt(1 + d2);
 }
 
+float efficient_max_dN(float time, float u, float v, float z) {
+    float EPSILON = 0.01f;
+    int nbOctaves = 3;
+    float inv_e = 1.0f / EPSILON;
+
+    // Position
+    vec3 fuv   = compute_wave_pos(vec3(u, v, z), time, nbOctaves);
+    vec3 f1uv  = compute_wave_pos(vec3(u + EPSILON, v, z), time, nbOctaves);
+    vec3 f2uv  = compute_wave_pos(vec3(u + 2*EPSILON, v, z), time, nbOctaves);
+    vec3 f1u1v = compute_wave_pos(vec3(u + EPSILON, v + EPSILON, z), time, nbOctaves);
+    vec3 fu1v  = compute_wave_pos(vec3(u, v + EPSILON, z), time, nbOctaves);
+    vec3 fu2v  = compute_wave_pos(vec3(u, v + 2*EPSILON, z), time, nbOctaves);
+    
+    // Derivatives of positions
+    vec3 dfuvx  = (f1uv - fuv) * inv_e;
+    vec3 dfuvy  = (fu1v - fuv) * inv_e;
+    vec3 df1uvx = (f2uv - f1uv) * inv_e;
+    vec3 df1uvy = (f1u1v - f1uv) * inv_e;
+    vec3 dfu1vy = (fu2v - fu1v) * inv_e;
+    vec3 dfu1vx = (f1u1v - fu1v) * inv_e;
+
+    // Normals
+    vec3 nuv  = normalize(cross(dfuvx, dfuvy));
+    vec3 n1uv = normalize(cross(df1uvx, df1uvy));
+    vec3 nu1v = normalize(cross(dfu1vx, dfu1vy));
+
+    // Derivatives of normals
+    vec3 dnx = (n1uv - nuv) * inv_e;
+    vec3 dny = (nu1v - nuv) * inv_e;
+    float dx = abs(dnx.z);
+    float dy = abs(dny.z);
+
+    // Compute directional derivative
+    if(dx < EPSILON) return dy;
+    float d1 = dy / dx;
+    float d2 = d1 * d1;
+    return dx * sqrt(1 + d2);
+}
+
 float compute_ecume(float time, vec3 wave_pos, vec3 uv_pos, vec3 norm) {
     //if (wave_pos.z > 3.65f) return min(1.0f, 0.7f + wave_pos.z - 3.65f);
-    float dN_value = max_dN(time, uv_pos.x, uv_pos.y, uv_pos.z);
+    float dN_value = efficient_max_dN(time, uv_pos.x, uv_pos.y, uv_pos.z);
     return min(1.0f, max(0, (7*dN_value)) * min(1, wave_pos.z - 2.0f) * (1.2f - norm.z));
 }
 
