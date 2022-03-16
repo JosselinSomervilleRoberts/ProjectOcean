@@ -47,7 +47,7 @@ void Ocean::initialize(int N_samples_edge_arg)
 
     // Noise
     perlin.used = true;
-    perlin.amplitude = 1.8f;
+    perlin.amplitude = 0.36f;
     perlin.octave = 5;
     perlin.persistency = 0.4f;
     perlin.frequency = 1.0f;
@@ -57,11 +57,24 @@ void Ocean::initialize(int N_samples_edge_arg)
 
     // Waves
     wave_exponant = 7.0f;
-    N_waves_desired = 20;
+    N_waves_desired = 40;
 
     // Wind
     wind.magnitude = 5.0f;
-    wind.direction = cgp::vec2(1.f, 0.f);
+    wind.direction = cgp::normalize(cgp::vec2(1.f, -0.3f));
+
+    // Foam
+    foam.exponent = 1.0f;
+    foam.render_threshold = 0.4f;
+    foam.compute_threshold = 1.4f;
+    foam.ha = 0.3f;
+    foam.alpha_g = 16.0f;
+    foam.h0 = 0.4f;
+    foam.hepsilon = 0.2f;
+    foam.nbOctaves = 3;
+    foam.color = vec3(1, 1, 1);
+    foam.display = true;
+    foam.only = false;
 }
 
 void Ocean::update_normal()
@@ -136,19 +149,14 @@ void Ocean::draw(Scene& scene, float t)
 	opengl_uniform(drawable.shader, "t", t);
     send_waves_to_GPU();
     send_noise_to_GPU();
+    send_seafoam_to_GPU();
+    send_environment_to_GPU();
     scene.send_lights_to_GPU(drawable.shader);
-    opengl_uniform(drawable.shader, "env_mapping_coeff", env_mapping_coeff);
 
 	// Set texture
 	glActiveTexture(GL_TEXTURE0); opengl_check;
 	glBindTexture(GL_TEXTURE_2D, drawable.texture); opengl_check;
 	opengl_uniform(drawable.shader, "image_texture", 0);  opengl_check;
-
-    // Set texture as a cubemap (different from the 2D texture using in the "standard" draw call) as a second texture
-    glActiveTexture(GL_TEXTURE1); opengl_check;
-    glBindTexture(GL_TEXTURE_CUBE_MAP, environment_map_texture); opengl_check;
-    opengl_uniform(drawable.shader, "environment_image_texture", 1, false);  opengl_check;
-    // Note: The value 'expected' is set to false so that this draw() call remains valid even if the shader doesn't expect an environment_image_texture parameter
 
 	// Call draw function
 	assert_cgp(drawable.number_triangles > 0, "Try to draw mesh_drawable with 0 triangles [name:" + drawable.name + "]"); opengl_check;
@@ -182,14 +190,11 @@ void Ocean::send_waves_to_GPU() {
         opengl_uniform(drawable.shader, std::string("waves[" + str(i) + "].K"), waves[i].K);
         opengl_uniform(drawable.shader, std::string("waves[" + str(i) + "].dir"), waves[i].dir);
     }
-
-    opengl_uniform(drawable.shader, "ecume_threshold", ecume_threshold);
-    opengl_uniform(drawable.shader, "ecume_exponent", ecume_exponent);
 }
 
 void Ocean::send_noise_to_GPU() {
     opengl_uniform(drawable.shader, "noise.used", perlin.used);
-    opengl_uniform(drawable.shader, "noise.amplitude", perlin.amplitude);
+    opengl_uniform(drawable.shader, "noise.amplitude", perlin.amplitude * wind.magnitude);
     opengl_uniform(drawable.shader, "noise.dilatation_space", perlin.dilatation_space);
     opengl_uniform(drawable.shader, "noise.dilatation_time", perlin.dilatation_time);
     opengl_uniform(drawable.shader, "noise.frequency", perlin.frequency);
@@ -198,7 +203,32 @@ void Ocean::send_noise_to_GPU() {
     opengl_uniform(drawable.shader, "noise.octave", perlin.octave);
 }
 
+void Ocean::send_seafoam_to_GPU() {
+    opengl_uniform(drawable.shader, "foam.exponent", foam.exponent);
+    opengl_uniform(drawable.shader, "foam.render_threshold", foam.render_threshold);
+    opengl_uniform(drawable.shader, "foam.compute_threshold", std::max(2.0f, foam.compute_threshold * (1+std::sqrt(wind.magnitude))));
+    opengl_uniform(drawable.shader, "foam.ha", foam.ha);
+    opengl_uniform(drawable.shader, "foam.alpha_g", foam.alpha_g);
+    opengl_uniform(drawable.shader, "foam.h0", foam.h0 * (1 + wind.magnitude));
+    opengl_uniform(drawable.shader, "foam.hepsilon", foam.hepsilon);
+    opengl_uniform(drawable.shader, "foam.nbOctaves", foam.nbOctaves);
+    opengl_uniform(drawable.shader, "foam.color", foam.color);
+    opengl_uniform(drawable.shader, "foam.display", foam.display);
+    opengl_uniform(drawable.shader, "foam.only", foam.only);
+}
 
-cgp::vec3 Ocean::getVertexPos(cgp::vec3 position, float time) {
-    return compute_wave_pos(position, time, waves.size(), waves, perlin);
+
+void Ocean::send_environment_to_GPU() {
+    opengl_uniform(drawable.shader, "env_mapping_coeff", env_mapping_coeff);
+    opengl_uniform(drawable.shader, "use_environment_map", use_environment_map);
+
+    // Set texture as a cubemap (different from the 2D texture using in the "standard" draw call) as a second texture
+    glActiveTexture(GL_TEXTURE1); opengl_check;
+    glBindTexture(GL_TEXTURE_CUBE_MAP, environment_map_texture); opengl_check;
+    opengl_uniform(drawable.shader, "environment_image_texture", 1, false);  opengl_check;
+    // Note: The value 'expected' is set to false so that this draw() call remains valid even if the shader doesn't expect an environment_image_texture parameter
+}
+
+cgp::vec3 Ocean::getVertexPos(cgp::vec3 position, float time, int noiseOctave) {
+    return compute_wave_pos(position, time, waves.size(), waves, wind, wave_exponant, perlin, noiseOctave);
 }

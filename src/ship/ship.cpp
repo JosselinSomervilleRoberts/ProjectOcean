@@ -12,9 +12,9 @@ void Ship::initialize() {
 	drawable.texture = opengl_load_texture_image("assets/ship.jpg");
 }
 
-void Ship::draw(Scene& scene)
+void Ship::draw(Scene& scene, bool display)
 {
-	drawable.shading.phong.specular = 0.02f; scene.getSpecular();
+	drawable.shading.phong.specular = 0;
 	drawable.shading.phong.diffuse = scene.getDiffuse();
 	drawable.shading.phong.ambient = scene.getAmbient();
 	drawable.shading.use_texture = scene.getUseTexture();
@@ -50,7 +50,7 @@ void Ship::draw(Scene& scene)
 	assert_cgp(drawable.number_triangles > 0, "Try to draw mesh_drawable with 0 triangles [name:" + drawable.name + "]"); opengl_check;
 	glBindVertexArray(drawable.vao);   opengl_check;
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, drawable.vbo.at("index")); opengl_check;
-	glDrawElements(GL_TRIANGLES, GLsizei(drawable.number_triangles * 3), GL_UNSIGNED_INT, nullptr); opengl_check;
+	if (display) glDrawElements(GL_TRIANGLES, GLsizei(drawable.number_triangles * 3), GL_UNSIGNED_INT, nullptr); opengl_check;
 
 	// Clean buffers
 	glBindVertexArray(0);
@@ -77,7 +77,7 @@ void Ship::update(Ocean& ocean, float time) {
 	}
 
 	for (int i = 0; i < 3 * N_triangles; i++) {
-		movedRefPoints[i] = ocean.getVertexPos(refPoints[i], time);
+		movedRefPoints[i] = ocean.getVertexPos(refPoints[i], time, nb_octaves);
 	}
 
 	float dt = time - last_t;

@@ -33,6 +33,8 @@ public:
 	float getSpecularExponant() { return specular_exponent; };
 	bool getUseTexture() { return use_texture; };
 
+	void changeScene(int skybox_id_copy);
+
 private:
 	// Drawing elements helpers
 	cgp::mesh_drawable global_frame;          // The standard global frame
@@ -41,7 +43,10 @@ private:
 	// Elements to draw
 	Ship ship;
 	Ocean ocean;              
-	cgp::skybox_drawable skybox;
+	cgp::skybox_drawable skybox_night;
+	cgp::skybox_drawable skybox_sunset;
+	bool display_ship = true;
+	int skybox_id = 2;
 	
 	// For simulation
 	cgp::timer_basic timer;

@@ -10,7 +10,7 @@ public:
 
 	Ship();
 	void initialize();
-	void draw(Scene& scene);
+	void draw(Scene& scene, bool display);
 
 	void computeRefPoints();
 
@@ -34,6 +34,7 @@ public:
 	float last_t = 0;
 	float m = 20;
 	float K = 5;
+	int nb_octaves = 3;
 
 	// To show
 	float scaling = 4.0f;

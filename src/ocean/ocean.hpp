@@ -21,9 +21,11 @@ public:
 	// GPU functions
 	void send_waves_to_GPU();
 	void send_noise_to_GPU();
+	void send_seafoam_to_GPU();
+	void send_environment_to_GPU();
 
 	// Shader functions translated to C++
-	cgp::vec3 getVertexPos(cgp::vec3 position, float time);
+	cgp::vec3 getVertexPos(cgp::vec3 position, float time, int noiseOctave);
 
 
 	// To generate
@@ -42,12 +44,10 @@ public:
 	cgp::mesh_drawable drawable;
 	cgp::mesh_drawable fond;
 	bool show_wireframe = false;
-
-	// Ecume
-	float ecume_threshold = 0.5f;
-	float ecume_exponent = 0.5f;
+	SeaFoam foam;
 
 	// Environment map
 	GLuint environment_map_texture = 0;
-	float env_mapping_coeff = 0.5f;
+	bool use_environment_map = true;
+	float env_mapping_coeff = 0.6f;
 };

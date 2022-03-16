@@ -30,3 +30,17 @@ struct LightSourceDir {
 	float intensity;
 	cgp::vec3 color;
 };
+
+struct SeaFoam {
+	float exponent;
+	float render_threshold;
+	float compute_threshold;
+	float ha;
+	float alpha_g;
+	float h0;
+	float hepsilon;
+	int nbOctaves;
+	cgp::vec3 color;
+	bool display;
+	bool only;
+};

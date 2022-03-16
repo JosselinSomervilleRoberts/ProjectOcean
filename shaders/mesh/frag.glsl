@@ -10,7 +10,7 @@ in struct fragment_data
 	vec3 eye;
 } fragment;
 
-in float ecume;
+in float coeff_seafoam;
 
 layout(location=0) out vec4 FragColor;
 uniform mat4 model;
@@ -20,6 +20,7 @@ uniform mat4 projection;
 uniform sampler2D image_texture;
 uniform samplerCube environment_image_texture;
 uniform float env_mapping_coeff = 0.5f;
+uniform bool use_environment_map;
 
 #define PI 3.1415
 
@@ -31,11 +32,23 @@ struct LightSourceDir {
 	vec3 color;
 };
 
+struct SeaFoam {
+    float exponent;
+    float render_threshold;
+    float compute_threshold;
+    float ha;
+    float alpha_g;
+    float h0;
+    float hepsilon;
+    int nbOctaves;
+    vec3 color;
+    bool display;
+    bool only;
+};
+uniform SeaFoam foam;
+
 uniform LightSourceDir lightsourcesDir[10];
 uniform int nb_lightsourcesDir;
-
-uniform float ecume_exponent = 0.3f;
-uniform float ecume_threshold = 0.4f;
 
 
 uniform vec3 color = vec3(1.0, 1.0, 1.0); // Unifor color of the object
@@ -109,10 +122,13 @@ void main()
 	}
 
 	// Environment mapping
-	vec3 V = normalize(fragment.eye-fragment.position);
-	vec3 R_skybox = reflect(-V, N);
-	vec4 color_environment_image_texture = texture(environment_image_texture,R_skybox);
-	vec3 color_object  = env_mapping_coeff * color_environment_image_texture.rgb + (1.0f - env_mapping_coeff) * fragment.color * color * color_image_texture.rgb;// * color_environment_image_texture.rgb;
+	vec3 color_object = fragment.color * color * color_image_texture.rgb;
+	if	(use_environment_map) {
+		vec3 V = normalize(fragment.eye-fragment.position);
+		vec3 R_skybox = reflect(-V, N);
+		vec4 color_environment_image_texture = texture(environment_image_texture,R_skybox);
+		color_object  = env_mapping_coeff * color_environment_image_texture.rgb + (1.0f - env_mapping_coeff) * fragment.color * color * color_image_texture.rgb;
+	}
 
 	// PBR Shading
 	vec3 pbr_color = vec3(0);
@@ -120,24 +136,23 @@ void main()
 	float roughness = 0.8f;
 	float metallicness = 0.5f;
 
-	if (ecume > ecume_threshold) {
-		float coef = pow((ecume - ecume_threshold) / (1.0f - ecume_threshold), ecume_exponent);
-		vec3 v = albedo * (1.0f - coef) + coef * vec3(1,1,1);
+	if ((foam.display) && (coeff_seafoam > foam.render_threshold)) {
+		float coef = pow((coeff_seafoam - foam.render_threshold) / (1.0f - foam.render_threshold), foam.exponent);
+		vec3 v = albedo * (1.0f - coef) + coef * foam.color;
 		albedo = v;
 	}
+	if (foam.only) FragColor = vec4(coeff_seafoam, coeff_seafoam, coeff_seafoam, 1);
+	else {
+		for(int i=0; i<nb_lightsourcesDir; i++) {
+			vec3 lightDirection = normalize(vec3(model * vec4(lightsourcesDir[i].direction, 1.0)));
+			pbr_color += get_r(fragment.position, N, -lightDirection, lightsourcesDir[i].intensity, lightsourcesDir[i].color, albedo, roughness, metallicness, Kd, Ks, specular_exp);
+		}
 
-	for(int i=0; i<nb_lightsourcesDir; i++) {
-		vec3 lightDirection = normalize(vec3(model * vec4(lightsourcesDir[i].direction, 1.0)));
-		pbr_color += get_r(fragment.position, N, -lightDirection, lightsourcesDir[i].intensity, lightsourcesDir[i].color, albedo, roughness, metallicness, Kd, Ks, specular_exp);
+		vec3 color_shading = (Ka * color_object) + pbr_color;
+		float aaa = 0.6f;
+		float a = alpha * aaa * color_image_texture.a;
+		a = max(a, coeff_seafoam);
+		FragColor = vec4(color_shading, a);
 	}
 
-
-	vec3 color_shading = (Ka * color_object) + pbr_color;
-	float aaa = 0.6f;
-	float a = alpha * aaa * color_image_texture.a;
-	a = max(a, ecume);
-	FragColor = vec4(color_shading, a);
-	FragColor = vec4(ecume, ecume, ecume, 1);
-
-	//if((fragment.position.x > 0)) FragColor = vec4(1,0,0,1);
 }

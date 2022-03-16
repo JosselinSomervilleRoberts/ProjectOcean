@@ -17,7 +17,7 @@ out struct fragment_data
 	vec3 eye;
 } fragment;
 
-out float ecume;
+out float coeff_seafoam;
 
 uniform mat4 model;
 uniform mat4 view;
@@ -28,25 +28,40 @@ struct Wave {
 	float amplitude;
 	float angular_velocity;
 	vec2 K;
-  vec2 dir;
+    vec2 dir;
 };
+uniform Wave waves[100];
+uniform int N_waves;
 
 
 struct PerlinNoise {
     bool used;
-	  float amplitude;
+	float amplitude;
     int octave;
-	  float persistency;
-	  float frequency;
-	  float frequency_gain;
+	float persistency;
+	float frequency;
+	float frequency_gain;
   	float dilatation_space;
     float dilatation_time;
 };
-
-uniform Wave waves[100];
-uniform int N_waves;
-uniform float t;
 uniform PerlinNoise noise;
+
+struct SeaFoam {
+    float exponent;
+    float render_threshold;
+    float compute_threshold;
+    float ha;
+    float alpha_g;
+    float h0;
+    float hepsilon;
+    int nbOctaves;
+    vec3 color;
+    bool display;
+    bool only;
+};
+uniform SeaFoam foam;
+
+uniform float t;
 
 
 
@@ -195,9 +210,7 @@ vec3 compute_wave_norm(vec3 pos, vec3 fuv, float time, int noiseOctave)
 }
 
 
-float max_dn(float time, float u, float v, float z) {
-    int nbOctaves = 3;
-
+float max_dn(float time, float u, float v, float z, int nbOctaves) {
     // Positions
     vec3 fuv   = compute_wave_pos(vec3(u, v, z), time, nbOctaves);
     vec3 f1uv  = compute_wave_pos(vec3(u + EPSILON, v, z), time, nbOctaves);
@@ -232,10 +245,10 @@ float max_dn(float time, float u, float v, float z) {
     return dx * sqrt(1 + d2);
 }
 
-float compute_ecume(float time, vec3 wave_pos, vec3 uv_pos, vec3 norm) {
-    //if (wave_pos.z > 3.65f) return min(1.0f, 0.7f + wave_pos.z - 3.65f);
-    float dn = max_dn(time, uv_pos.x, uv_pos.y, uv_pos.z);
-    return min(1.0f, max(0, (7*dn)) * min(1, wave_pos.z - 2.0f) * (1.2f - norm.z));
+float compute_seafoam(float time, vec3 wave_pos, vec3 uv_pos, vec3 norm) {
+    if (wave_pos.z > foam.compute_threshold) return min(1.0f, foam.render_threshold + foam.ha + wave_pos.z - foam.compute_threshold);
+    float dn = max_dn(time, uv_pos.x, uv_pos.y, uv_pos.z, foam.nbOctaves);
+    return min(1.0f, max(0, (foam.alpha_g*dn)) * min(1, wave_pos.z - foam.h0) * (1.0f + foam.hepsilon - norm.z));
 }
 
 
@@ -251,5 +264,6 @@ void main()
     fragment.eye = vec3(inverse(view)*vec4(0,0,0,1.0));
 
     gl_Position = projection * view * model * vec4(pos, 1.0);
-    ecume = compute_ecume(t, pos, position, norm);
+    coeff_seafoam = 0;
+    if (foam.display) coeff_seafoam = compute_seafoam(t, pos, position, norm);
 }
